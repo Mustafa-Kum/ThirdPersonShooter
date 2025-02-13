@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+guid: a5334d14e4464c478f9e9fda26bbc65e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _coverPointPrefab: {fileID: 524030318436166490, guid: 8ee3062198ac19a4abeccd97c778754d, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
