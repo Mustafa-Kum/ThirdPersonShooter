@@ -9,7 +9,12 @@ namespace Manager
         private void Awake()
         {
             instance = this;
-            
+        
+        }
+
+        private void Start()
+        {
+            // Start metodunda event tetikleyerek, diğer script'lerin abone olma şansını artırıyoruz.
             EventManager.GameEvents.GameStart?.Invoke();
         }
     }

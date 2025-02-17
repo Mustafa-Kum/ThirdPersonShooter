@@ -87,5 +87,12 @@ namespace Manager
             public static UnityAction AudioSettingsSave;
             public static UnityAction VoiceOutOfAmmo;
         }
+
+        public static class EnemySpawnEvents
+        {
+            public static UnityAction EnemySpawn;
+            public static UnityAction ResetEnemySpawnWave;
+            public static UnityAction<GameObject> EnemyDied;
+        }
     }
 }

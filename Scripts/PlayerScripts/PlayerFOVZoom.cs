@@ -26,8 +26,6 @@ namespace PlayerScripts
             {
                 StopCoroutine(currentZoomCoroutine);
             }
-            
-            Debug.Log("1");
 
             // Yeni değerler ile yeni coroutine başlat
             currentZoomCoroutine = StartCoroutine(SmoothZoomTransition(targetFOV, duration, thirdPersonCamera));

@@ -22,7 +22,8 @@ namespace Manager
         private void OnGameStart()
         {
             ShootTimeReset();
-            LevelGeneration();
+            //LevelGeneration();
+            EventManager.EnemySpawnEvents.EnemySpawn?.Invoke();
         }
         
         private void ShootTimeReset()

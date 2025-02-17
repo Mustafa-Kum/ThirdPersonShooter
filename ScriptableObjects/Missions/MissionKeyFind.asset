@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 639844ae15e14ebca36d58576821010a, type: 3}
+  m_Name: MissionKeyFind
+  m_EditorClassIdentifier: 
+  _missionName: "The Key to Fl\u0131ght"
+  _missionDescription: You must locate and defeat the key holder to retrieve the
+    key.
+  _key: {fileID: 166575082487202215, guid: 5c72f2eb704dee64082ace2c65dd4b72, type: 3}

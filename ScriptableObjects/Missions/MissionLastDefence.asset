@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4550fb242ac41d08876d87f64d7558f, type: 3}
+  m_Name: MissionLastDefence
+  m_EditorClassIdentifier: 
+  _missionName: The Last Defence
+  _missionDescription: Stay Strong ! Waves are coming.
+  _defenceDuration: 120
+  _waveCooldown: 15
+  _amountOfRespawnPoints: 2
+  _enemiesPerWave: 5
+  _enemyPrefabs:
+  - {fileID: 1254563311695091796, guid: 42d40958031ea05418d8015448fc2d01, type: 3}
+  - {fileID: 6065018897828543144, guid: ead23ff412874f84aa74a1a03134231b, type: 3}
+  - {fileID: 7447775910635394030, guid: 0718561237b65ee4ea73e6de1940785f, type: 3}
+  - {fileID: 2230659891162261848, guid: c6ee864317b72bf459dd9a462c749eee, type: 3}
+  - {fileID: 3089619578027307554, guid: bb5ef01375cbf924db6a93df6a463b1a, type: 3}
+  - {fileID: 7745232335400184646, guid: fbf19abd6eea3d74d9e1703ce5908181, type: 3}
+  - {fileID: 5595306720190918273, guid: 3b2b72eacf8fdad4ca37ceb54739ff77, type: 3}
+  - {fileID: 6411892969060762017, guid: 5ba59f3d6eed60b4f81da5c79f3c7470, type: 3}
+  - {fileID: 6295240990652146271, guid: d329f3cee8e879241a97ad300c98edc8, type: 3}
+  _respawnPoints: []

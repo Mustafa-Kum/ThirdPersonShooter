@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 936a38d4995c44e89fd58a9818dd3414, type: 3}
+  m_Name: PlayerWeaponPistolSettingSO
+  m_EditorClassIdentifier: 
+  _weaponType: 0
+  _shootType: 0
+  _burstModeAvailable: 0
+  _weaponAmmo: 15
+  _maxAmmo: 15
+  _totalReserveAmmo: 97449
+  _bulletPerFire: 1
+  _burstModeBulletPerFire: 0
+  _burstModeFireRate: 0
+  _burstFireDelay: 0
+  _burstModeActive: 0
+  _weaponDamage: 15
+  _defaultFireRate: 0
+  _fireRate: 6
+  _gunRange: 25
+  _reloadSpeed: 1.5
+  _currentSpreadAmount: 0
+  _baseSpreadAmount: 0.25
+  _maximumSpreadAmount: 2
+  _spreadIncreaseAmount: 0.15
+  _spreadCooldown: 0
+  _recoilAmountX: 0.025
+  _recoilAmountY: 0.025
+  _cameraShakeAmount: 0.5
+  _cameraMultiplier: 1.01
+  _cameraDuration: 0.2
+  _cameraFOVDistance: 75
+  _weaponIcon: {fileID: 1068215163, guid: 3477fe9a26e0faa42b5a9b5b258229c1, type: 3}
+  _isShooting: 0
+  _isWeaponScopped: 0

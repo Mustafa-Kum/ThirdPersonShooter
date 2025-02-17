@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using Manager;
 
 namespace HpController
 {
@@ -36,6 +37,7 @@ namespace HpController
             if (_currentHealth <= 0)
             {
                 _isDead = true;
+                EventManager.EnemySpawnEvents.EnemyDied?.Invoke(gameObject);
                 return true;
             }
 
