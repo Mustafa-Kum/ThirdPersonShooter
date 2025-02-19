@@ -19,6 +19,10 @@ namespace EnemyLogic
             [Header("Spawn Limitleri")] 
             public int maxEnemies = 10;
             [Tooltip("Sonsuz düşman için işaretle")] 
+            [Header("Spawn Mesafesi")]
+            public float minDistanceFromPlayer = 10f;
+            [Tooltip("Oyuncudan maksimum uzaklık")] 
+            public float maxDistanceFromPlayer = 30f;
             public bool infiniteEnemies;
 
             public bool ShouldContinueSpawning(int spawnedCount) => infiniteEnemies || spawnedCount < maxEnemies;
@@ -30,7 +34,7 @@ namespace EnemyLogic
         [SerializeField] private float waveCooldown = 5f;
         [SerializeField] private BoxCollider spawnArea;
         [SerializeField] private PlayerTransformValueSO playerTransform;
-        [SerializeField] private float minDistanceFromPlayer = 10f;
+        [SerializeField] private LayerMask environmentLayerMask;
         #endregion
 
         #region Runtime State
@@ -133,8 +137,44 @@ namespace EnemyLogic
         #region Spawn Logic
         private void SpawnSingleEnemy(GameObject enemyPrefab)
         {
-            Vector3 spawnPosition = CalculateSafeSpawnPosition();
-            Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+            if(TryCalculateSafeSpawnPosition(out Vector3 spawnPosition))
+            {
+                Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+            }
+        }
+        
+        private bool TryCalculateSafeSpawnPosition(out Vector3 position)
+        {
+            const int maxAttempts = 100;
+            int attempts = 0;
+            
+            do
+            {
+                position = GetRandomPositionInBounds();
+                attempts++;
+            } 
+            while((IsInvalidDistanceFromPlayer(position) || IsPositionBlocked(position)) && attempts <= maxAttempts);
+
+            if(attempts > maxAttempts)
+            {
+                Debug.LogWarning("Uygun spawn pozisyonu bulunamadı!");
+                return false;
+            }
+            return true;
+        }
+
+        private bool IsInvalidDistanceFromPlayer(Vector3 position)
+        {
+            float distance = Vector3.Distance(position, playerTransform.PlayerTransform);
+            Wave currentWave = waves[currentWaveIndex];
+            return distance < currentWave.minDistanceFromPlayer || distance > currentWave.maxDistanceFromPlayer;
+        }
+
+        private bool IsPositionBlocked(Vector3 position)
+        {
+            // Küçük bir yarıçapla çevresel collider kontrolü
+            const float checkRadius = 0.5f;
+            return Physics.CheckSphere(position, checkRadius, environmentLayerMask);
         }
 
         private Vector3 CalculateSafeSpawnPosition()
@@ -161,7 +201,7 @@ namespace EnemyLogic
             Bounds bounds = spawnArea.bounds;
             return new Vector3(
                 Random.Range(bounds.min.x, bounds.max.x),
-                Random.Range(bounds.min.y, bounds.max.y),
+                bounds.min.y, // Y eksenini sabit tutuyoruz
                 Random.Range(bounds.min.z, bounds.max.z)
             );
         }
@@ -172,7 +212,8 @@ namespace EnemyLogic
         private bool IsValidWaveIndex(int index) => index >= 0 && index < waves.Count;
         private bool ShouldSpawnMore(Wave wave, int spawnedCount) => wave.infiniteEnemies || spawnedCount < wave.maxEnemies;
         private bool HasMoreWaves() => currentWaveIndex < waves.Count;
-        private bool IsTooCloseToPlayer(Vector3 position) => Vector3.Distance(position, playerTransform.PlayerTransform) < minDistanceFromPlayer;
+        private bool IsTooCloseToPlayer(Vector3 position) => 
+            Vector3.Distance(position, playerTransform.PlayerTransform) < waves[currentWaveIndex].minDistanceFromPlayer;
         #endregion
 
         #region Utility Methods

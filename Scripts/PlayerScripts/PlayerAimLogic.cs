@@ -23,7 +23,11 @@ namespace Logic
         
         [Header("Recoil Settings")]
         [SerializeField] private float _recoilRecoverySpeed = 5f; // Recoil'den geri dönüş hızı
-        
+
+        [Header("Camera Target Settings")]
+        [SerializeField] private float _minTargetDistance = 5f;
+        [SerializeField] private float _maxTargetDistance = 10f;
+
         private float _xRotation = 0f;
         private float _currentRecoilX = 0f;
         private float _currentRecoilY = 0f;
@@ -117,17 +121,19 @@ namespace Logic
 
         private void UpdateCameraTargetPosition()
         {
-            RaycastHit hitInfo;
             Ray ray = new Ray(_thirdPersonCamera.transform.position, _thirdPersonCamera.transform.forward);
             Vector3 targetPosition;
+            RaycastHit hitInfo;
 
-            if (Physics.Raycast(ray, out hitInfo, 50f, _layerMask))
+            if (Physics.Raycast(ray, out hitInfo, _maxTargetDistance, _layerMask))
             {
-                targetPosition = hitInfo.point;
+                float distance = Vector3.Distance(ray.origin, hitInfo.point);
+                distance = Mathf.Clamp(distance, _minTargetDistance, _maxTargetDistance);
+                targetPosition = ray.origin + ray.direction * distance;
             }
             else
             {
-                targetPosition = ray.origin + ray.direction * 50f;
+                targetPosition = ray.origin + ray.direction * _maxTargetDistance;
             }
             
             _playerAimData.CameraTarget.position = Vector3.Lerp(
@@ -215,17 +221,14 @@ namespace Logic
 
         #region Recoil Logic
 
-        // Bu metot ateş edildikten sonra çağrılır. (PlayerFiredWeapon event'ine bağlı.)
         private void ApplyRecoil(float recoilAmountX, float recoilAmountY)
         {
-            // Kameraya yukarı doğru bir sarsıntı ver
             _currentRecoilX += -recoilAmountX;
             _currentRecoilY += Random.Range(-recoilAmountY, recoilAmountY);
         }
 
         private void HandleRecoilRecovery()
         {
-            // currentRecoilX ve currentRecoilY değerlerini zamanla 0'a döndür
             _currentRecoilX = Mathf.Lerp(_currentRecoilX, 0f, Time.deltaTime * _recoilRecoverySpeed);
             _currentRecoilY = Mathf.Lerp(_currentRecoilY, 0f, Time.deltaTime * _recoilRecoverySpeed);
         }
@@ -239,15 +242,12 @@ namespace Logic
             float mouseX = Input.GetAxis("Mouse X") * _mouseSensitivity * Time.deltaTime;
             float mouseY = Input.GetAxis("Mouse Y") * _mouseSensitivity * Time.deltaTime;
 
-            // Yukarı ve aşağı hareket (pitch) + recoil etkisi
             _xRotation -= mouseY;
-            _xRotation += _currentRecoilX; // Recoil'den gelen ekstra rotasyon
+            _xRotation += _currentRecoilX;
             _xRotation = Mathf.Clamp(_xRotation, -30f, 30f);
 
-            // Sağ ve sola hareket (yaw) + recoil etkisi
             float finalYRotation = mouseX + _currentRecoilY; 
 
-            // Kamerayı uygula
             _thirdPersonCamera.transform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
             transform.Rotate(Vector3.up * finalYRotation);
         }

@@ -14,6 +14,9 @@ namespace Logic
         [SerializeField] private CinemachineVirtualCamera _virtualCamera;
         [SerializeField] private PlayerWeaponSettingsSO _playerCurrentWeaponSettingsSO;
 
+        private bool _isRunButtonPressed; // Run butonu basılı mı?
+        private bool _wasRunning; // Önceki frame'de koşuyor muydu?
+
         private void Start()
         {
             InitializeComponents();
@@ -22,10 +25,7 @@ namespace Logic
 
         private void Update()
         {
-            StopRunningCheck();
-
-            if (_playerMovementData.PlayerMovementValueSO.IsRunning == true)
-                EventManager.PlayerEvents.PlayerRunningCameraEffectStart?.Invoke();
+            HandleRunningState();
         }
 
         private void InitializeComponents()
@@ -66,25 +66,19 @@ namespace Logic
 
         private void OnRunPerformed(InputAction.CallbackContext context)
         {
-            StartRunning();
+            _isRunButtonPressed = true; // Run butonu basıldı
         }
 
         private void OnRunCanceled(InputAction.CallbackContext context)
         {
-            StopRunning();
+            _isRunButtonPressed = false; // Run butonu bırakıldı
         }
 
-        /// <summary>
-        /// Hareket girdi değerlerini ayarlar.
-        /// </summary>
         private void SetMoveInput(Vector2 input)
         {
             _playerMovementData.PlayerMovementValueSO.MoveInput = input;
         }
 
-        /// <summary>
-        /// Hareket girdi değerlerini sıfırlar ve animasyon hızlarını durdurur.
-        /// </summary>
         private void ResetMoveInput()
         {
             _playerMovementData.PlayerMovementValueSO.MoveInput = Vector2.zero;
@@ -92,54 +86,61 @@ namespace Logic
         }
 
         /// <summary>
-        /// Koşmayı başlatır ve hızı günceller.
+        /// Koşma durumunu günceller (Her frame'de çalışır)
         /// </summary>
-        private void StartRunning()
+        private void HandleRunningState()
         {
-            _playerMovementData.PlayerMovementValueSO.IsRunning = true;
-            EventManager.PlayerEvents.PlayerScopedAnimation?.Invoke(false);
-            EventManager.PlayerEvents.PlayerCanScopeToggle?.Invoke(false);
-            EventManager.PlayerEvents.PlayerWeaponCanFire?.Invoke(false);
-            _playerCurrentWeaponSettingsSO.IsWeaponScopped = false;
-            UpdateMovementSpeed();
-        }
+            bool isMovingForward = IsMovingForward();
+            bool isRunningNow = _isRunButtonPressed && isMovingForward;
 
-        /// <summary>
-        /// Koşmayı durdurur ve hızı günceller.
-        /// </summary>
-        private void StopRunning()
-        {
-            if (_playerMovementData.PlayerMovementValueSO.IsRolling)
-                return;
-            
-            _playerMovementData.PlayerMovementValueSO.IsRunning = false;
-            EventManager.PlayerEvents.PlayerFOVZoomRoutine?.Invoke(75f, 0.2f, _virtualCamera);
-            EventManager.PlayerEvents.PlayerCanScopeToggle?.Invoke(true);
-            EventManager.PlayerEvents.PlayerWeaponCanFire?.Invoke(true);
-            EventManager.PlayerEvents.PlayerRunningCameraEffectEnd?.Invoke();
-            UpdateMovementSpeed();
-        }
-
-        private void StopRunningCheck()
-        {
-            if (_playerMovementData.PlayerMovementValueSO.MoveInput.y == 0 && _playerMovementData.PlayerMovementValueSO.MoveInput.x == 0)
+            // Koşma durumu değiştiyse event'leri tetikle
+            if (isRunningNow != _playerMovementData.PlayerMovementValueSO.IsRunning)
             {
-                _playerMovementData.PlayerMovementValueSO.IsRunning = false;
+                _playerMovementData.PlayerMovementValueSO.IsRunning = isRunningNow;
+
+                if (isRunningNow)
+                {
+                    EventManager.PlayerEvents.PlayerFOVZoomRoutine?.Invoke(105f, 0.2f, _virtualCamera);
+                    EventManager.PlayerEvents.PlayerScopedAnimation?.Invoke(false);
+                    EventManager.PlayerEvents.PlayerCanScopeToggle?.Invoke(false);
+                    EventManager.PlayerEvents.PlayerWeaponCanFire?.Invoke(false);
+                    _playerCurrentWeaponSettingsSO.IsWeaponScopped = false;
+                }
+                else
+                {
+                    EventManager.PlayerEvents.PlayerFOVZoomRoutine?.Invoke(75f, 0.2f, _virtualCamera);
+                    EventManager.PlayerEvents.PlayerCanScopeToggle?.Invoke(true);
+                    EventManager.PlayerEvents.PlayerWeaponCanFire?.Invoke(true);
+                }
+            }
+
+            UpdateMovementSpeed();
+        }
+
+        private void UpdateMovementSpeed()
+        {
+            if (_playerMovementData.PlayerMovementValueSO.IsRunning)
+            {
+                EventManager.PlayerEvents.PlayerRunningCameraEffectStart?.Invoke();
+                _playerMovementData.PlayerMovementValueSO.DefaultSpeed = _playerMovementData.PlayerMovementValueSO.RunSpeed;
+            }
+            else
+            {
+                EventManager.PlayerEvents.PlayerRunningCameraEffectEnd?.Invoke();
+                _playerMovementData.PlayerMovementValueSO.DefaultSpeed = _playerMovementData.PlayerMovementValueSO.MoveSpeed;
             }
         }
 
-        /// <summary>
-        /// Koşma/normal hız değerlerini günceller.
-        /// </summary>
-        private void UpdateMovementSpeed()
-        {
-            _playerMovementData.PlayerMovementValueSO.DefaultSpeed = _playerMovementData.PlayerMovementValueSO.IsRunning ? 
-                _playerMovementData.PlayerMovementValueSO.RunSpeed : _playerMovementData.PlayerMovementValueSO.MoveSpeed;
-        }
 
         /// <summary>
-        /// Hareket işlemlerini (Yer çekimi, hareket, animasyon) yönetir.
+        /// Karakterin ileri yönde hareket edip etmediğini kontrol eder
         /// </summary>
+        private bool IsMovingForward()
+        {
+            Vector2 moveInput = _playerMovementData.PlayerMovementValueSO.MoveInput;
+            return moveInput.y > 0.1f && Mathf.Abs(moveInput.x) < 0.5f;
+        }
+
         private void HandleMovement()
         {
             ApplyGravity();
@@ -147,21 +148,16 @@ namespace Logic
             UpdateMovementAnimations();
         }
 
-        /// <summary>
-        /// Karakteri girdilere göre hareket ettirir.
-        /// </summary>
         private void MoveCharacter()
         {
             Vector3 moveDirection = GetMoveDirection();
             if (moveDirection != Vector3.zero)
             {
-                _playerMovementData.CharacterController.Move(moveDirection * (Time.deltaTime * _playerMovementData.PlayerMovementValueSO.DefaultSpeed));
+                _playerMovementData.CharacterController.Move(moveDirection * 
+                    (Time.deltaTime * _playerMovementData.PlayerMovementValueSO.DefaultSpeed));
             }
         }
 
-        /// <summary>
-        /// Karakterin ileri-geri-sağa-sola hareket vektörünü hesaplar.
-        /// </summary>
         private Vector3 GetMoveDirection()
         {
             Vector3 forward = Camera.main.transform.forward;
@@ -173,19 +169,18 @@ namespace Logic
             forward.Normalize();
             right.Normalize();
             
-            Vector3 moveDirection = forward * _playerMovementData.PlayerMovementValueSO.MoveInput.y + right * _playerMovementData.PlayerMovementValueSO.MoveInput.x;
+            Vector3 moveDirection = forward * _playerMovementData.PlayerMovementValueSO.MoveInput.y + 
+                                   right * _playerMovementData.PlayerMovementValueSO.MoveInput.x;
             
             return new Vector3(moveDirection.x, _playerMovementData.PlayerMovementValueSO.VerticalVelocity, moveDirection.z);
         }
 
-        /// <summary>
-        /// Yer çekimi uygular.
-        /// </summary>
         private void ApplyGravity()
         {
             if (!_playerMovementData.CharacterController.isGrounded)
             {
-                _playerMovementData.PlayerMovementValueSO.VerticalVelocity -= _playerMovementData.PlayerMovementValueSO.GravityScale * Time.deltaTime;
+                _playerMovementData.PlayerMovementValueSO.VerticalVelocity -= 
+                    _playerMovementData.PlayerMovementValueSO.GravityScale * Time.deltaTime;
             }
             else
             {
@@ -193,28 +188,20 @@ namespace Logic
             }
         }
 
-        /// <summary>
-        /// Hareketle ilgili animasyon parametrelerini günceller.
-        /// </summary>
         private void UpdateMovementAnimations()
         {
             Vector3 localMoveDirection = transform.InverseTransformDirection(GetMoveDirection());
             SetAnimationVelocity(localMoveDirection.x, localMoveDirection.z);
-            SetAnimationRunningState(_playerMovementData.PlayerMovementValueSO.IsRunning && localMoveDirection.magnitude > 0);
+            SetAnimationRunningState(_playerMovementData.PlayerMovementValueSO.IsRunning && 
+                                     localMoveDirection.magnitude > 0);
         }
 
-        /// <summary>
-        /// Animasyon hız parametrelerini ayarlar.
-        /// </summary>
         private void SetAnimationVelocity(float xVelocity, float zVelocity)
         {
             _playerMovementData.Animator.SetFloat("xVelocity", xVelocity, 0.2f, Time.deltaTime);
             _playerMovementData.Animator.SetFloat("zVelocity", zVelocity, 0.2f, Time.deltaTime);
         }
 
-        /// <summary>
-        /// Koşma durumunu animasyona aktarır.
-        /// </summary>
         private void SetAnimationRunningState(bool isRunning)
         {
             _playerMovementData.Animator.SetBool("isRunning", isRunning);
