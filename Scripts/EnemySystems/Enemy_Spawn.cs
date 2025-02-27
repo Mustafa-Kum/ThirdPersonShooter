@@ -16,12 +16,12 @@ namespace EnemyLogic
             public List<GameObject> enemies;
             [Tooltip("Saniye cinsinden spawn aralığı")] 
             public float spawnInterval = 2f;
-            [Header("Spawn Limitleri")] 
+            [Header("Spawn Limitleri")]
             public int maxEnemies = 10;
-            [Tooltip("Sonsuz düşman için işaretle")] 
             [Header("Spawn Mesafesi")]
+            [Tooltip("Oyuncudan en yakın mesafe")]
             public float minDistanceFromPlayer = 10f;
-            [Tooltip("Oyuncudan maksimum uzaklık")] 
+            [Tooltip("Oyuncudan maksimum uzaklık")]
             public float maxDistanceFromPlayer = 30f;
             public bool infiniteEnemies;
 
@@ -41,18 +41,14 @@ namespace EnemyLogic
         private int currentWaveIndex = 0;
         private Coroutine activeWaveCoroutine;
         private bool isWaveActive = false;
-
-        // Aktif düşman sayısını ve spawn işleminin tamamlanıp tamamlanmadığını takip eden değişkenler:
         private int activeEnemyCount = 0;
         private bool waveSpawningCompleted = false;
         #endregion
 
         #region Unity Events
-
         private void OnEnable() 
         {
             EventManager.EnemySpawnEvents.EnemySpawn += StartWave;
-            // Düşman öldüğünde tetiklenen event'e abone ol
             EventManager.EnemySpawnEvents.EnemyDied += OnEnemyDied;
         }
 
@@ -66,17 +62,17 @@ namespace EnemyLogic
         #endregion
 
         #region Public API
-        public void ResetWaves()
+        public virtual void ResetWaves()
         {
             currentWaveIndex = 0;
             ResetState();
             StopAllCoroutines();
         }
 
-        public void SkipToWave(int waveIndex)
+        public virtual void SkipToWave(int waveIndex)
         {
-            if(!IsValidWaveIndex(waveIndex)) return;
-            
+            if (!IsValidWaveIndex(waveIndex)) return;
+
             currentWaveIndex = waveIndex;
             StopAllCoroutines();
             StartWave();
@@ -84,46 +80,52 @@ namespace EnemyLogic
         #endregion
 
         #region Wave Management
-        private void StartWave()
+        protected virtual void StartWave()
         {
-            if(!CanStartNewWave()) return;
-            
+            if (!CanStartNewWave()) return;
+
+            // Eğer 5. dal başlıyorsa (0 tabanlı dizide index 4)
+            if (currentWaveIndex == 4)
+            {
+                EventManager.MapEvents.ColumnSpawn?.Invoke();
+            }
+
             // Yeni dal başlamadan önce sayaçları sıfırlıyoruz.
             activeEnemyCount = 0;
             waveSpawningCompleted = false;
-            
+
             activeWaveCoroutine = StartCoroutine(SpawnWaveRoutine());
             isWaveActive = true;
         }
 
-        private IEnumerator SpawnWaveRoutine()
+
+        protected virtual IEnumerator SpawnWaveRoutine()
         {
             var currentWave = waves[currentWaveIndex];
             LogWaveStart(currentWave);
-            
-            // Dal için düşmanları spawn etmeye başla.
+
+            // Dal kapsamında düşman spawn işlemi başlatılıyor.
             yield return SpawnEnemies(currentWave);
-            
-            // Tüm düşman spawn işlemi tamamlandı.
+
+            // Tüm spawn işlemi tamamlandı.
             waveSpawningCompleted = true;
-            
-            // Eğer o ana kadar spawn ettiğimiz tüm düşmanlar öldüyse, dalı tamamla.
-            if(activeEnemyCount <= 0)
+
+            // Eğer o ana kadar oluşturulan tüm düşmanlar öldüyse, dalı bitir.
+            if (activeEnemyCount <= 0)
             {
                 yield return DelayedNextWave();
             }
-            // Eğer aktif düşman kalmışsa, OnEnemyDied event handler'ı kalan düşmanları takip edip, 
-            // sayaç sıfırlandığında dal geçişini tetikleyecektir.
+            // Aksi durumda, OnEnemyDied metodu kalan düşmanları takip edecektir.
         }
 
-        private IEnumerator DelayedNextWave()
+        protected virtual IEnumerator DelayedNextWave()
         {
             yield return new WaitForSeconds(waveCooldown);
-            
+
             currentWaveIndex++;
             isWaveActive = false;
 
-            if(HasMoreWaves())
+            if (HasMoreWaves())
             {
                 StartNextWave();
             }
@@ -135,27 +137,27 @@ namespace EnemyLogic
         #endregion
 
         #region Spawn Logic
-        private void SpawnSingleEnemy(GameObject enemyPrefab)
+        protected virtual void SpawnSingleEnemy(GameObject enemyPrefab)
         {
-            if(TryCalculateSafeSpawnPosition(out Vector3 spawnPosition))
+            if (TryCalculateSafeSpawnPosition(out Vector3 spawnPosition))
             {
                 Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
             }
         }
-        
-        private bool TryCalculateSafeSpawnPosition(out Vector3 position)
+
+        protected virtual bool TryCalculateSafeSpawnPosition(out Vector3 position)
         {
             const int maxAttempts = 100;
             int attempts = 0;
-            
+
             do
             {
                 position = GetRandomPositionInBounds();
                 attempts++;
-            } 
-            while((IsInvalidDistanceFromPlayer(position) || IsPositionBlocked(position)) && attempts <= maxAttempts);
+            }
+            while ((IsInvalidDistanceFromPlayer(position) || IsPositionBlocked(position)) && attempts <= maxAttempts);
 
-            if(attempts > maxAttempts)
+            if (attempts > maxAttempts)
             {
                 Debug.LogWarning("Uygun spawn pozisyonu bulunamadı!");
                 return false;
@@ -163,76 +165,57 @@ namespace EnemyLogic
             return true;
         }
 
-        private bool IsInvalidDistanceFromPlayer(Vector3 position)
+        protected virtual bool IsInvalidDistanceFromPlayer(Vector3 position)
         {
             float distance = Vector3.Distance(position, playerTransform.PlayerTransform);
             Wave currentWave = waves[currentWaveIndex];
             return distance < currentWave.minDistanceFromPlayer || distance > currentWave.maxDistanceFromPlayer;
         }
 
-        private bool IsPositionBlocked(Vector3 position)
+        protected virtual bool IsPositionBlocked(Vector3 position)
         {
-            // Küçük bir yarıçapla çevresel collider kontrolü
             const float checkRadius = 0.5f;
             return Physics.CheckSphere(position, checkRadius, environmentLayerMask);
         }
 
-        private Vector3 CalculateSafeSpawnPosition()
-        {
-            const int maxAttempts = 100;
-            int attempts = 0;
-            Vector3 position;
-
-            do
-            {
-                position = GetRandomPositionInBounds();
-                attempts++;
-            } 
-            while(IsTooCloseToPlayer(position) && attempts <= maxAttempts);
-
-            if(attempts > maxAttempts)
-                Debug.LogWarning("Uygun spawn pozisyonu bulunamadı!");
-
-            return position;
-        }
-
-        private Vector3 GetRandomPositionInBounds()
+        protected virtual Vector3 GetRandomPositionInBounds()
         {
             Bounds bounds = spawnArea.bounds;
             return new Vector3(
                 Random.Range(bounds.min.x, bounds.max.x),
-                bounds.min.y, // Y eksenini sabit tutuyoruz
+                bounds.min.y,
                 Random.Range(bounds.min.z, bounds.max.z)
             );
         }
         #endregion
 
         #region Validation & Checks
-        private bool CanStartNewWave() => !isWaveActive && currentWaveIndex < waves.Count;
-        private bool IsValidWaveIndex(int index) => index >= 0 && index < waves.Count;
-        private bool ShouldSpawnMore(Wave wave, int spawnedCount) => wave.infiniteEnemies || spawnedCount < wave.maxEnemies;
-        private bool HasMoreWaves() => currentWaveIndex < waves.Count;
-        private bool IsTooCloseToPlayer(Vector3 position) => 
+        protected virtual bool CanStartNewWave() => !isWaveActive && currentWaveIndex < waves.Count;
+        protected virtual bool IsValidWaveIndex(int index) => index >= 0 && index < waves.Count;
+        protected virtual bool ShouldSpawnMore(Wave wave, int spawnedCount) => wave.infiniteEnemies || spawnedCount < wave.maxEnemies;
+        protected virtual bool HasMoreWaves() => currentWaveIndex < waves.Count;
+        protected virtual bool IsTooCloseToPlayer(Vector3 position) =>
             Vector3.Distance(position, playerTransform.PlayerTransform) < waves[currentWaveIndex].minDistanceFromPlayer;
         #endregion
 
         #region Utility Methods
-        private void ResetState() => isWaveActive = false;
-        private void StartNextWave()
+        protected virtual void ResetState() => isWaveActive = false;
+
+        protected virtual void StartNextWave()
         {
             Debug.Log($"Sonraki wave'e geçiliyor: {waves[currentWaveIndex].waveName}");
             StartWave();
         }
-        private void LogWaveStart(Wave wave) => Debug.Log($"Wave {wave.waveName} başladı!");
+
+        protected virtual void LogWaveStart(Wave wave) => Debug.Log($"Wave {wave.waveName} başladı!");
         #endregion
 
         #region Enemy Death Handling
-        // Düşman öldüğünde tetiklenen event handler.
-        private void OnEnemyDied(GameObject enemy)
+        protected virtual void OnEnemyDied(GameObject enemy)
         {
             activeEnemyCount--;
             // Eğer spawn işlemi tamamlandıysa ve tüm düşmanlar öldüyse, dalı bitir.
-            if(waveSpawningCompleted && activeEnemyCount <= 0)
+            if (waveSpawningCompleted && activeEnemyCount <= 0)
             {
                 StartCoroutine(DelayedNextWave());
             }
@@ -240,18 +223,19 @@ namespace EnemyLogic
         #endregion
 
         #region Spawn Coroutine
-        private IEnumerator SpawnEnemies(Wave wave)
+        protected virtual IEnumerator SpawnEnemies(Wave wave)
         {
             int spawnedCount = 0;
-            
-            while(wave.ShouldContinueSpawning(spawnedCount))
+
+            while (wave.ShouldContinueSpawning(spawnedCount))
             {
-                foreach(var enemyPrefab in wave.enemies)
+                foreach (var enemyPrefab in wave.enemies)
                 {
-                    if(!ShouldSpawnMore(wave, spawnedCount)) yield break;
-                    
+                    if (!ShouldSpawnMore(wave, spawnedCount))
+                        yield break;
+
                     SpawnSingleEnemy(enemyPrefab);
-                    activeEnemyCount++; // Her spawn edilen düşman için sayaç artırılıyor.
+                    activeEnemyCount++;
                     spawnedCount++;
                     yield return new WaitForSeconds(wave.spawnInterval);
                 }

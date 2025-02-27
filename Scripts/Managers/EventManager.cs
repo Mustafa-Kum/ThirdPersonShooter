@@ -27,6 +27,7 @@ namespace Manager
             public static UnityAction<bool> PlayerRollingStart;
             public static UnityAction<bool> PlayerRollingEnd;
             public static UnityAction<bool> PlayerCanScopeToggle;
+            public static UnityAction<bool, Logic.HitArea> PlayerHitEnemyCrosshairFeedBack;
             public static UnityAction<int> PlayerWeaponSwap;
             public static UnityAction PlayerMovement;
             public static UnityAction PlayerFire;
@@ -86,6 +87,8 @@ namespace Manager
             public static UnityAction AudioPlayerRoll;
             public static UnityAction AudioSettingsSave;
             public static UnityAction VoiceOutOfAmmo;
+            public static UnityAction AudioBodyHitMarkerSound;
+            public static UnityAction AudioHeadHitMarkerSound;
         }
 
         public static class EnemySpawnEvents
@@ -93,6 +96,11 @@ namespace Manager
             public static UnityAction EnemySpawn;
             public static UnityAction ResetEnemySpawnWave;
             public static UnityAction<GameObject> EnemyDied;
+        }
+
+        public static class MapEvents
+        {
+            public static UnityAction ColumnSpawn;
         }
     }
 }

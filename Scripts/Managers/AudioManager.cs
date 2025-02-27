@@ -18,6 +18,8 @@ namespace Manager
         [SerializeField] private AudioSource _playerRunSound;
         [SerializeField] private AudioSource _playerRollSound;
         [SerializeField] private AudioSource _outOfAmmoVoice;
+        [SerializeField] private AudioSource _bodyHitmarkerSound;
+        [SerializeField] private AudioSource _headHitmarkerSound;
         [SerializeField] private CharacterController _playerController;
         [SerializeField] private PlayerWeaponSettingsSO _currentWeaponSO;
 
@@ -42,6 +44,8 @@ namespace Manager
             EventManager.AudioEvents.AudioEnemyMeleeSwooshSound += EnemyMeleeSwooshSound;
             EventManager.AudioEvents.AudioEnemyMeleeImpactSound += EnemyMeleeImpactSound;
             EventManager.AudioEvents.AudioWeaponOutOfAmmoSound += PlayWeaponOutOfAmmoSound;
+            EventManager.AudioEvents.AudioBodyHitMarkerSound += BodyHitMarkerSound;
+            EventManager.AudioEvents.AudioHeadHitMarkerSound += HeadHitMarkerSound;
             EventManager.AudioEvents.AudioWeaponFireSound += PlayWeaponFireSound;
             EventManager.AudioEvents.AudioPlayerRoll += PlayerRollSound;
             EventManager.AudioEvents.VoiceOutOfAmmo += OutOfAmmoVoice;
@@ -59,6 +63,8 @@ namespace Manager
             EventManager.AudioEvents.AudioEnemyMeleeSwooshSound -= EnemyMeleeSwooshSound;
             EventManager.AudioEvents.AudioEnemyMeleeImpactSound -= EnemyMeleeImpactSound;
             EventManager.AudioEvents.AudioWeaponOutOfAmmoSound -= PlayWeaponOutOfAmmoSound;
+            EventManager.AudioEvents.AudioBodyHitMarkerSound -= BodyHitMarkerSound;
+            EventManager.AudioEvents.AudioHeadHitMarkerSound -= HeadHitMarkerSound;
             EventManager.AudioEvents.AudioWeaponFireSound -= PlayWeaponFireSound;
             EventManager.AudioEvents.AudioPlayerRoll -= PlayerRollSound;
             EventManager.AudioEvents.VoiceOutOfAmmo -= OutOfAmmoVoice;
@@ -156,6 +162,16 @@ namespace Manager
             
             if (!_playerRunSound.isPlaying)
                 _playerRunSound.Play();
+        }
+
+        private void BodyHitMarkerSound()
+        {
+            _bodyHitmarkerSound.Play();
+        }
+
+        private void HeadHitMarkerSound()
+        {
+            _headHitmarkerSound.Play();
         }
 
         private void OutOfAmmoVoice()

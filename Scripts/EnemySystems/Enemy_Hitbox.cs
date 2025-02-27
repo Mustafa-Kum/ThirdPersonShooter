@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using EnemyLogic;
 using Lean.Pool;
+using Logic;
+using Manager;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
@@ -12,6 +14,7 @@ namespace HitboxLogic
         [SerializeField] private AudioSource _bodyfallSound;
         [SerializeField] private GameObject[] _blood;
         [SerializeField] private GameObject _bodyAttachedBlood;
+        [SerializeField] private Logic.HitArea _hitArea; // Hitbox'un temsil ettiği vücut bölgesi
 
         private Enemy _enemy;
         private bool _hasPlayedSound = false;
@@ -27,6 +30,19 @@ namespace HitboxLogic
         {
             int adjustedDamage = CalculateDamage(damage);
             _enemy.GetHit(adjustedDamage);
+
+            // Düşmana isabet ettiğimizde crosshair feedback event'ini çağır
+            EventManager.PlayerEvents.PlayerHitEnemyCrosshairFeedBack?.Invoke(true, _hitArea);
+
+            // _hitArea'ya göre ilgili sesi çal
+            if (_hitArea == HitArea.Body)
+            {
+                EventManager.AudioEvents.AudioBodyHitMarkerSound?.Invoke();
+            }
+            else if (_hitArea == HitArea.Head)
+            {
+                EventManager.AudioEvents.AudioHeadHitMarkerSound?.Invoke();
+            }
 
             if (_multiAimConstraint != null)
             {
