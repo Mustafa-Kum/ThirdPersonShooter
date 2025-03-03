@@ -18,11 +18,11 @@ MonoBehaviour:
   - {fileID: 4052970602988332555, guid: abeae70312b684244aaf4814dff581f8, type: 3}
   - {fileID: 4052970602988332555, guid: 7956ad7e0467cc04ea9c97dfe1eccfde, type: 3}
   - {fileID: 4052970602988332555, guid: 0f9f3e75e76a31247990ab0b41bec28c, type: 3}
-  _bulletSpeed: 70
+  _bulletSpeed: 500
   _hitEffect:
   - {fileID: 1089465354904564, guid: f0855940e22dbcd4aad5ca152a089348, type: 3}
   - {fileID: 1153730961705006, guid: f1aeeba2f9003904da5c0a24ba150198, type: 3}
   - {fileID: 1344461201369764, guid: cfe0c511fa8d1cf4abf31f2f48dfe4f9, type: 3}
   - {fileID: 1998750652454270, guid: 8a1ac1dbe39224143972fa1a908b0abf, type: 3}
   - {fileID: 1029544359644514, guid: aab2daf1fd2b23f4a9bdbbb38fc95704, type: 3}
-  _bulletImpactForce: 100
+  _bulletImpactForce: 10

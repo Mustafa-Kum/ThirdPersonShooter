@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Manager;
 using ScriptableObjects;
+using Lean.Pool;
 
 namespace EnemyLogic
 {
@@ -14,6 +15,7 @@ namespace EnemyLogic
         {
             public string waveName = "Wave";
             public List<GameObject> enemies;
+            public GameObject weaponSpawn;
             [Tooltip("Saniye cinsinden spawn aralığı")] 
             public float spawnInterval = 2f;
             [Header("Spawn Limitleri")]
@@ -35,6 +37,7 @@ namespace EnemyLogic
         [SerializeField] private BoxCollider spawnArea;
         [SerializeField] private PlayerTransformValueSO playerTransform;
         [SerializeField] private LayerMask environmentLayerMask;
+        [SerializeField] private GameObject _spawnParticle;
         #endregion
 
         #region Runtime State
@@ -104,6 +107,12 @@ namespace EnemyLogic
             var currentWave = waves[currentWaveIndex];
             LogWaveStart(currentWave);
 
+            // Opsiyonel: specialSpawn objesini spawnla (null kontrolü ile)
+            if (currentWave.weaponSpawn != null)
+            {
+                SpawnWeaponObject(currentWave.weaponSpawn);
+            }
+
             // Dal kapsamında düşman spawn işlemi başlatılıyor.
             yield return SpawnEnemies(currentWave);
 
@@ -117,6 +126,33 @@ namespace EnemyLogic
             }
             // Aksi durumda, OnEnemyDied metodu kalan düşmanları takip edecektir.
         }
+
+        protected virtual void SpawnWeaponObject(GameObject weaponPrefab)
+        {
+            if (TryCalculateSafeSpawnPosition(out Vector3 spawnPosition))
+            {
+                // Özel obje spawn ediliyor.
+                GameObject weaponObj = LeanPool.Spawn(weaponPrefab, spawnPosition, Quaternion.identity);
+
+                // İsteğe bağlı: Spawn efektleri veya ek ayarlamalar eklenebilir.
+                GameObject particleInstance = LeanPool.Spawn(_spawnParticle, weaponObj.transform.position, Quaternion.identity);
+                ParticleSystem ps = particleInstance.GetComponent<ParticleSystem>();
+                if (ps != null)
+                {
+                    float delay = ps.main.duration;
+                    LeanPool.Despawn(particleInstance, delay);
+                }
+                else
+                {
+                    LeanPool.Despawn(particleInstance, 2f);
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Özel obje için uygun spawn pozisyonu bulunamadı!");
+            }
+        }
+
 
         protected virtual IEnumerator DelayedNextWave()
         {
@@ -141,7 +177,27 @@ namespace EnemyLogic
         {
             if (TryCalculateSafeSpawnPosition(out Vector3 spawnPosition))
             {
-                Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+                // Enemy spawn ediliyor.
+                GameObject enemy = LeanPool.Spawn(enemyPrefab, spawnPosition, Quaternion.identity);
+                
+                // Spawn particle efektini enemy'nin pozisyonunda oluşturuyoruz.
+                GameObject particleInstance = LeanPool.Spawn(_spawnParticle, enemy.transform.position, Quaternion.identity);
+                
+                // Particle sistemini alıp, efekt süresi kadar bekleyip despawn ediyoruz.
+                ParticleSystem ps = particleInstance.GetComponent<ParticleSystem>();
+                if (ps != null)
+                {
+                    // Particle sisteminin süresi kadar bekleyip, efekt tamamlandığında despawn ediliyor.
+                    float delay = ps.main.duration;
+                    // Eğer particle sisteminin startLifetime'ı da eklenmek isteniyorsa:
+                    // delay += ps.main.startLifetime.constant;
+                    LeanPool.Despawn(particleInstance, delay);
+                }
+                else
+                {
+                    // Eğer ParticleSystem bileşeni bulunamazsa, sabit bir süre sonrası despawn ediliyor.
+                    LeanPool.Despawn(particleInstance, 2f);
+                }
             }
         }
 

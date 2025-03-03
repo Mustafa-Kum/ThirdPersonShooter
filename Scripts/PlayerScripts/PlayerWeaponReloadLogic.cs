@@ -136,21 +136,42 @@ namespace Logic
         /// </summary>
         private void PerformReloadCompletionActions()
         {
-            int activeWeaponIndex = _playerWeaponReloadData.PlayerWeaponIndexSO.WeaponIndex;
-
+            int activeWeaponIndex = GetValidWeaponIndex();
             ReloadAmmunitionForActiveWeapon(activeWeaponIndex);
             StopReloadSound();
             UpdateUIAfterReload(activeWeaponIndex);
         }
+
 
         /// <summary>
         /// Aktif silahın cephanesini yeniler.
         /// </summary>
         private void ReloadAmmunitionForActiveWeapon(int activeWeaponIndex)
         {
+            if (activeWeaponIndex < 0 || activeWeaponIndex >= _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO.Count)
+            {
+                Debug.LogError($"Active weapon index {activeWeaponIndex} is out of range. Total available weapons: {_playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO.Count}");
+                return;
+            }
+            
             _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO[activeWeaponIndex].ReloadAmmo();
             _playerWeaponReloadData.CurrentWeaponSettingsSO.ReloadAmmo();
         }
+
+        private int GetValidWeaponIndex()
+        {
+            int index = _playerWeaponReloadData.PlayerWeaponIndexSO.WeaponIndex;
+            if (index < 0 || index >= _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO.Count)
+            {
+                // Default to pistol: set the current weapon type and index to 0.
+                _playerWeaponReloadData.CurrentWeaponSettingsSO.WeaponType = WeaponType.Pistol;
+                _playerWeaponReloadData.PlayerWeaponIndexSO.WeaponIndex = 0;
+                index = 0;
+            }
+            return index;
+        }
+
+
 
         /// <summary>
         /// Reload sesi çalıyorsa durdurur.
@@ -165,11 +186,13 @@ namespace Logic
         /// </summary>
         private void UpdateUIAfterReload(int activeWeaponIndex)
         {
+            activeWeaponIndex = GetValidWeaponIndex();
             EventManager.UIEvents.UIWeaponUpdate?.Invoke(
                 _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO,
-                _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO[_playerWeaponReloadData.PlayerWeaponIndexSO.WeaponIndex]
+                _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO[activeWeaponIndex]
             );
         }
+
 
         /// <summary>
         /// Her bir weapon type için reload ses kaynağını sözlükte eşler.

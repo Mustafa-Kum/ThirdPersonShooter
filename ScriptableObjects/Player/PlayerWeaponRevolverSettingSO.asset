@@ -15,28 +15,28 @@ MonoBehaviour:
   _weaponType: 1
   _shootType: 0
   _burstModeAvailable: 0
-  _weaponAmmo: 6
+  _weaponAmmo: 4
   _maxAmmo: 6
-  _totalReserveAmmo: 820
+  _totalReserveAmmo: 748
   _bulletPerFire: 1
   _burstModeBulletPerFire: 0
   _burstModeFireRate: 0
   _burstFireDelay: 0
   _burstModeActive: 0
-  _weaponDamage: 35
+  _weaponDamage: 30
   _defaultFireRate: 0
   _fireRate: 2
-  _gunRange: 25
+  _gunRange: 500
   _reloadSpeed: 1.3
   _currentSpreadAmount: 0
-  _baseSpreadAmount: 1
-  _maximumSpreadAmount: 1
+  _baseSpreadAmount: 0
+  _maximumSpreadAmount: 0
   _spreadIncreaseAmount: 0
   _spreadCooldown: 0
-  _recoilAmountX: 0.06
-  _recoilAmountY: 0.06
-  _cameraShakeAmount: 0.7
-  _cameraMultiplier: 1.02
+  _recoilAmountX: 1
+  _recoilAmountY: 1
+  _cameraShakeAmount: 2
+  _cameraMultiplier: 1.15
   _cameraDuration: 0.2
   _cameraFOVDistance: 75
   _weaponIcon: {fileID: 1440921872, guid: 3477fe9a26e0faa42b5a9b5b258229c1, type: 3}

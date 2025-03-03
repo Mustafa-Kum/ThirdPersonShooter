@@ -3,6 +3,7 @@ using EnemyLogic;
 using Lean.Pool;
 using Logic;
 using Manager;
+using HpController;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
@@ -17,6 +18,7 @@ namespace HitboxLogic
         [SerializeField] private Logic.HitArea _hitArea; // Hitbox'un temsil ettiği vücut bölgesi
 
         private Enemy _enemy;
+        private HealthController _healthController;
         private bool _hasPlayedSound = false;
         private bool _hasSpawnedAttachedBlood = false;
 
@@ -24,6 +26,7 @@ namespace HitboxLogic
         {
             base.Awake();
             _enemy = GetComponentInParent<Enemy>();
+            _healthController = _enemy.GetComponent<HealthController>(); // HealthController referansını önbelleğe aldık
         }
 
         public override void TakeDamage(int damage)
@@ -31,28 +34,35 @@ namespace HitboxLogic
             int adjustedDamage = CalculateDamage(damage);
             _enemy.GetHit(adjustedDamage);
 
-            // Düşmana isabet ettiğimizde crosshair feedback event'ini çağır
             EventManager.PlayerEvents.PlayerHitEnemyCrosshairFeedBack?.Invoke(true, _hitArea);
 
-            // _hitArea'ya göre ilgili sesi çal
-            if (_hitArea == HitArea.Body)
+            // Eğer düşman henüz ölmediyse, hit marker sesini oynatıyoruz
+            if (_healthController != null && !_healthController.IsDead)
             {
-                EventManager.AudioEvents.AudioBodyHitMarkerSound?.Invoke();
-            }
-            else if (_hitArea == HitArea.Head)
-            {
-                EventManager.AudioEvents.AudioHeadHitMarkerSound?.Invoke();
+                PlayHitSound(_hitArea);
             }
 
             if (_multiAimConstraint != null)
-            {
                 StartCoroutine(SmoothWeightTransition());
-            }
         }
 
         private int CalculateDamage(int damage)
         {
+            // _damageMultiplier Hitbox sınıfında tanımlı varsayılmaktadır.
             return Mathf.RoundToInt(damage * _damageMultiplier);
+        }
+
+        private void PlayHitSound(HitArea hitArea)
+        {
+            switch (hitArea)
+            {
+                case HitArea.Body:
+                    EventManager.AudioEvents.AudioBodyHitMarkerSound?.Invoke();
+                    break;
+                case HitArea.Head:
+                    EventManager.AudioEvents.AudioHeadHitMarkerSound?.Invoke();
+                    break;
+            }
         }
 
         private IEnumerator SmoothWeightTransition()

@@ -21,6 +21,8 @@ namespace EnemyStateLogic
             _interactionDisable = false;
 
             _stateTimer = 2f;
+
+            UnityEngine.Object.Destroy(_enemyMelee.gameObject, 2f);
         }
 
         public override void Update()

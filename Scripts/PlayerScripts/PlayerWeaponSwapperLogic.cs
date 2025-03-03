@@ -76,9 +76,19 @@ namespace Logic
         /// </summary>
         private void OnCharacterWeaponSwap(int weaponIndex)
         {
-            InitiateWeapon(weaponIndex);
-            UpdateAnimatorLayer(weaponIndex);
+            // Eğer index geçerli değilse default olarak 0. index'i kullan
+            int validIndex = (weaponIndex < 0 || weaponIndex >= _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO.Count)
+                ? 0
+                : weaponIndex;
+
+            InitiateWeapon(validIndex);
+            UpdateAnimatorLayer(validIndex);
+            EventManager.UIEvents.UIWeaponUpdate?.Invoke(
+                _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO, 
+                _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO[validIndex]
+            );
         }
+
 
         /// <summary>
         /// Silahı seçer, ses çalar, görselini günceller ve UI'yi günceller.
@@ -98,8 +108,13 @@ namespace Logic
         /// </summary>
         private WeaponType GetWeaponTypeAtIndex(int weaponIndex)
         {
+            if (weaponIndex < 0 || weaponIndex >= _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO.Count)
+            {
+                return WeaponType.Pistol; // or handle the error appropriately
+            }
             return _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO[weaponIndex].WeaponType;
         }
+
 
         /// <summary>
         /// Tüm silahları deaktif eder.

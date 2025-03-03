@@ -130,8 +130,28 @@ namespace Controller
 
         private bool IsSingleShootType(PlayerWeaponSettingsSO weaponSettings)
         {
-            return _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO[_playerWeaponFireData.PlayerWeaponIndexSO.WeaponIndex].ShootType == ShootType.Single;
+            int index = _playerWeaponFireData.PlayerWeaponIndexSO.WeaponIndex;
+
+            // Check if index is within the bounds of the list
+            if (index < 0 || index >= _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO.Count)
+            {
+                _playerWeaponFireData.CurrentWeaponSettingsSO.WeaponType = WeaponType.Pistol;
+                return false;
+            }
+
+            // Get the weapon slot from the list safely
+            var weaponSlot = _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO[index];
+
+            // If the shoot type is not single, default to Pistol
+            if (weaponSlot.ShootType != ShootType.Single)
+            {
+                _playerWeaponFireData.CurrentWeaponSettingsSO.WeaponType = WeaponType.Rifle;
+                return false;
+            }
+            
+            return true;
         }
+
 
         private void FireSingleBullet()
         {
@@ -302,7 +322,7 @@ namespace Controller
 
         private void ApplyCameraShake()
         {
-            EventManager.PlayerEvents.PlayerWeaponCameraShake?.Invoke(_playerWeaponFireData.CurrentWeaponSettingsSO.CameraShakeAmount, 0.15f);
+            EventManager.PlayerEvents.PlayerWeaponCameraShake?.Invoke(_playerWeaponFireData.CurrentWeaponSettingsSO.CameraShakeAmount, 0.3f);
         }
 
         private void ApplyZoomRoutine()
@@ -318,21 +338,38 @@ namespace Controller
             
         }
 
+        private int GetValidWeaponIndex()
+        {
+            int index = _playerWeaponFireData.PlayerWeaponIndexSO.WeaponIndex;
+            if (index < 0 || index >= _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO.Count)
+            {
+                // Default to pistol by setting the current weapon type and index to 0
+                _playerWeaponFireData.CurrentWeaponSettingsSO.WeaponType = WeaponType.Pistol;
+                _playerWeaponFireData.PlayerWeaponIndexSO.WeaponIndex = 0;
+                index = 0;
+            }
+            return index;
+        }
+
+
         #endregion
 
         #region UI Updates
 
         private void UpdateUIAmmoCount()
         {
+            int index = GetValidWeaponIndex();
             EventManager.UIEvents.UIWeaponUpdate?.Invoke(
                 _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO,
-                _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO[_playerWeaponFireData.PlayerWeaponIndexSO.WeaponIndex]
+                _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO[index]
             );
         }
 
+
         private void UpdateAmmoCount()
         {
-            _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO[_playerWeaponFireData.PlayerWeaponIndexSO.WeaponIndex].WeaponAmmo =
+            int index = GetValidWeaponIndex();
+            _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO[index].WeaponAmmo =
                 _playerWeaponFireData.CurrentWeaponSettingsSO.WeaponAmmo;
         }
 

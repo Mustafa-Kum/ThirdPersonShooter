@@ -180,6 +180,12 @@ namespace ScriptableObjects
             get { return _gunRange; }
             set { _gunRange = value; }
         }
+
+        public float CurrentSpreadAmount 
+        {
+            get { return _currentSpreadAmount; }
+            set { _currentSpreadAmount = value; }
+        }
         
         public Sprite WeaponIcon
         {
@@ -268,6 +274,7 @@ namespace ScriptableObjects
         {
             if (_weaponType == WeaponType.Shotgun)
             {
+                _currentSpreadAmount = 0;
                 _burstFireDelay = 0;
                 return true;
             }

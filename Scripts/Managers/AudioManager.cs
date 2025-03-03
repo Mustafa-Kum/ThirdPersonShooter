@@ -20,6 +20,7 @@ namespace Manager
         [SerializeField] private AudioSource _outOfAmmoVoice;
         [SerializeField] private AudioSource _bodyHitmarkerSound;
         [SerializeField] private AudioSource _headHitmarkerSound;
+        [SerializeField] private AudioSource _killSound;
         [SerializeField] private CharacterController _playerController;
         [SerializeField] private PlayerWeaponSettingsSO _currentWeaponSO;
 
@@ -49,6 +50,7 @@ namespace Manager
             EventManager.AudioEvents.AudioWeaponFireSound += PlayWeaponFireSound;
             EventManager.AudioEvents.AudioPlayerRoll += PlayerRollSound;
             EventManager.AudioEvents.VoiceOutOfAmmo += OutOfAmmoVoice;
+            EventManager.AudioEvents.AudioKillSound += KillSound;
             EventManager.AudioEvents.AudioFadeOut += FadeOut;
             EventManager.AudioEvents.AudioFadeIn += FadeIn;
             EventManager.AudioEvents.AudioUISFX += PlayUiSFX;
@@ -68,6 +70,7 @@ namespace Manager
             EventManager.AudioEvents.AudioWeaponFireSound -= PlayWeaponFireSound;
             EventManager.AudioEvents.AudioPlayerRoll -= PlayerRollSound;
             EventManager.AudioEvents.VoiceOutOfAmmo -= OutOfAmmoVoice;
+            EventManager.AudioEvents.AudioKillSound -= KillSound;
             EventManager.AudioEvents.AudioFadeOut -= FadeOut;
             EventManager.AudioEvents.AudioFadeIn -= FadeIn;
             EventManager.AudioEvents.AudioUISFX -= PlayUiSFX;
@@ -166,12 +169,23 @@ namespace Manager
 
         private void BodyHitMarkerSound()
         {
-            _bodyHitmarkerSound.Play();
+            AudioSource newAudioSource = LeanPool.Spawn(_bodyHitmarkerSound, transform);
+            newAudioSource.Play();
+            LeanPool.Despawn(newAudioSource.gameObject, newAudioSource.clip.length);
         }
 
         private void HeadHitMarkerSound()
         {
-            _headHitmarkerSound.Play();
+            AudioSource newAudioSource = LeanPool.Spawn(_headHitmarkerSound, transform);
+            newAudioSource.Play();
+            LeanPool.Despawn(newAudioSource.gameObject, newAudioSource.clip.length);
+        }
+
+        private void KillSound()
+        {
+            AudioSource newAudioSource = LeanPool.Spawn(_killSound, transform);
+            newAudioSource.Play();
+            LeanPool.Despawn(newAudioSource.gameObject, newAudioSource.clip.length);
         }
 
         private void OutOfAmmoVoice()

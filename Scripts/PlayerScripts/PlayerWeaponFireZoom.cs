@@ -32,18 +32,7 @@ public class PlayerWeaponFireZoom : MonoBehaviour
         float elapsed = 0f;
         float halfDuration = duration * 0.5f; // Git ve gel süreleri için toplam sürenin yarısı
 
-        // Git: FOV'u hedef FOV'a doğru zoom yap
-        while (elapsed < halfDuration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / halfDuration;
-            float curveValue = lerpCurve.Evaluate(t);
-            virtualCamera.m_Lens.FieldOfView = Mathf.Lerp(targetFOV, initialFOV, curveValue);
-            yield return null;
-        }
-
-        // Gel: FOV'u başlangıç FOV'una geri döndür
-        elapsed = 0f;
+        // Git: FOV'u başlangıçtan hedef FOV'a doğru zoom yap
         while (elapsed < halfDuration)
         {
             elapsed += Time.deltaTime;
@@ -52,5 +41,17 @@ public class PlayerWeaponFireZoom : MonoBehaviour
             virtualCamera.m_Lens.FieldOfView = Mathf.Lerp(initialFOV, targetFOV, curveValue);
             yield return null;
         }
+
+        // Gel: FOV'u hedef FOV'dan başlangıç FOV'una geri döndür
+        elapsed = 0f;
+        while (elapsed < halfDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / halfDuration;
+            float curveValue = lerpCurve.Evaluate(t);
+            virtualCamera.m_Lens.FieldOfView = Mathf.Lerp(targetFOV, initialFOV, curveValue);
+            yield return null;
+        }
     }
+
 }

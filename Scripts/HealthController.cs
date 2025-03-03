@@ -10,6 +10,9 @@ namespace HpController
         public int _currentHealth;
         
         private bool _isDead;
+
+        // _isDead durumunu dışarıya açan property
+        public bool IsDead => _isDead;
         
         protected virtual void Awake()
         {
@@ -38,6 +41,7 @@ namespace HpController
             {
                 _isDead = true;
                 EventManager.EnemySpawnEvents.EnemyDied?.Invoke(gameObject);
+                EventManager.AudioEvents.AudioKillSound?.Invoke();
                 return true;
             }
 

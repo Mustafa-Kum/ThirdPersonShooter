@@ -15,7 +15,7 @@ namespace UILogic
         [SerializeField] private float _healthBarChangeRate = 5f;
         
         [Header("Weapon Slot")]
-        [SerializeField] private UIWeaponSlot[] _weaponSlots_UI;
+        [SerializeField] private UIWeaponSlot _weaponSlot_UI;
         
         [Header("Missions")]
         [SerializeField] private TextMeshProUGUI _missionText;
@@ -34,7 +34,8 @@ namespace UILogic
 
         private void Awake()
         {
-            _weaponSlots_UI = GetComponentsInChildren<UIWeaponSlot>();
+            if (_weaponSlot_UI == null)
+                _weaponSlot_UI = GetComponentInChildren<UIWeaponSlot>();
         }
 
         private void OnEnable()
@@ -47,7 +48,7 @@ namespace UILogic
         private void OnDisable()
         {
             EventManager.UIEvents.UIWeaponUpdate -= UpdateWeaponUI;
-            EventManager.UIEvents.UIWeaponAlpha += UpdateWeaponAlphaUI;
+            EventManager.UIEvents.UIWeaponAlpha -= UpdateWeaponAlphaUI;
             EventManager.UIEvents.UIMissionToolTipSwitch -= SwitchMissionToolTip;
         }
         
@@ -71,25 +72,14 @@ namespace UILogic
 
         public void UpdateWeaponUI(List<PlayerWeaponSettingsSO> weaponSlots, PlayerWeaponSettingsSO currentWeapon)
         {
-            for (int i = 0; i < _weaponSlots_UI.Length; i++)
-            {
-                if (i < weaponSlots.Count)
-                {
-                    _weaponSlots_UI[i].UpdateWeaponSlot(weaponSlots[i]);
-                }
-                else
-                {
-                    _weaponSlots_UI[i].UpdateWeaponSlot(null);
-                }
-            }
+            // Tek bir slot olduğundan, yalnızca geçerli silahı güncelliyoruz.
+            _weaponSlot_UI.UpdateWeaponSlot(currentWeapon);
         }
         
         public void UpdateWeaponAlphaUI(PlayerWeaponIndexSO slotIndex)
         {
-            for (int i = 0; i < _weaponSlots_UI.Length; i++)
-            {
-                _weaponSlots_UI[i].UpdateWeaponAlpha(i == slotIndex.WeaponIndex);
-            }
+            // Tek slot olduğundan, yalnızca slotIndex 0 ise alfa değeri aktif olacak şekilde güncelle.
+            _weaponSlot_UI.UpdateWeaponAlpha(slotIndex.WeaponIndex == 0);
         }
 
         public void SwitchMissionToolTip()

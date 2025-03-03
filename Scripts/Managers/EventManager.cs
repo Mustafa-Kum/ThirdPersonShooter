@@ -89,6 +89,7 @@ namespace Manager
             public static UnityAction VoiceOutOfAmmo;
             public static UnityAction AudioBodyHitMarkerSound;
             public static UnityAction AudioHeadHitMarkerSound;
+            public static UnityAction AudioKillSound;
         }
 
         public static class EnemySpawnEvents
