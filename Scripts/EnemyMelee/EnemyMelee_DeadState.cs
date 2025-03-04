@@ -1,6 +1,7 @@
 ﻿using EnemyLogic;
 using RagDollLogic;
 using EnemyStateMachineLogic;
+using UnityEngine;
 
 namespace EnemyStateLogic
 {
@@ -17,6 +18,8 @@ namespace EnemyStateLogic
         public override void Enter()
         {
             base.Enter();
+
+            _enemyMelee.RagDoll.ActiveRagdollCollider(false);
             
             _interactionDisable = false;
 
@@ -42,8 +45,9 @@ namespace EnemyStateLogic
             if (_stateTimer <= 0 && _interactionDisable == false)
             {
                 _interactionDisable = true;
-                //_enemyMelee.RagDoll.ActivateRagDollRigidBody(false); // ---> After Dead dropping the enemy to the ground
-                _enemyMelee.RagDoll.ActiveRagdollCollider(false);
+                _enemyMelee.RagDoll.ActivateRagDollRigidBody(false); // ---> After Dead dropping the enemy to the ground
+
+                Debug.Log("DisableInteraction");
             }
         }
     }

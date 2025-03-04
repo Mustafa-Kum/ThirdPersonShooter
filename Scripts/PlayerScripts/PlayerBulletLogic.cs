@@ -60,7 +60,7 @@ namespace Logic
         {
             SpawnHitEffectForCollision(collision);
             ApplyDamageIfPossible(collision);
-            ApplyBulletImpactToEnemy(collision);
+            //ApplyBulletImpactToEnemy(collision);
             DespawnBullet();
         }
 
@@ -85,7 +85,7 @@ namespace Logic
 
             if (enemy != null)
             {
-                Vector3 force = _playerBulletLogicData.Rigidbody.velocity.normalized * _impactForce;
+                Vector3 force = _playerBulletLogicData.Rigidbody.linearVelocity.normalized * _impactForce;
                 Rigidbody hitEnemyRigidbody = collision.collider.attachedRigidbody;
                 enemy.BulletImpact(force, collision.contacts[0].point, hitEnemyRigidbody);
             }

@@ -205,7 +205,7 @@ namespace EnemyLogic
             _enemyDropController.DropItem();
             DeactivateAnimatorAndNavAgent();
             RagDoll.ActivateRagDollRigidBody(true);
-            HandleMissionHuntTarget();
+            //HandleMissionHuntTarget();
         }
 
         /// <summary>

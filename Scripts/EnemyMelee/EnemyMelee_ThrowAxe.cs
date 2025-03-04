@@ -29,12 +29,12 @@ namespace EnemyLogic
                 _axeThrowDirection = (_playerTransformValueSO.PlayerTransform + Vector3.up - _axeTransform.position);
             }
             
-            transform.forward = _axeRigidbody.velocity;
+            transform.forward = _axeRigidbody.linearVelocity;
         }
 
         private void FixedUpdate()
         {
-            _axeRigidbody.velocity = _axeThrowDirection.normalized * _flySpeed;
+            _axeRigidbody.linearVelocity = _axeThrowDirection.normalized * _flySpeed;
         }
 
         public void AxeSetup(float flySpeed, Vector3 playerTransform, float timer, int damage)

@@ -266,7 +266,7 @@ namespace EnemyRangeLogic
             if (bulletRigidbody != null)
             {
                 bulletRigidbody.mass = 20 / _enemyRangeWeaponDataSO._bulletSpeed;
-                bulletRigidbody.velocity = bulletDirectionWithSpread * _enemyRangeWeaponDataSO._bulletSpeed;
+                bulletRigidbody.linearVelocity = bulletDirectionWithSpread * _enemyRangeWeaponDataSO._bulletSpeed;
             }
         }
 

@@ -26,7 +26,7 @@ namespace CarLogic
 
         private void OnTriggerEnter(Collider other)
         {
-            if (_carController._rigidbody.velocity.magnitude < _minSpeedToDamage) 
+            if (_carController._rigidbody.linearVelocity.magnitude < _minSpeedToDamage) 
                 return;
             
             IDamagable damagable = other.GetComponent<IDamagable>();

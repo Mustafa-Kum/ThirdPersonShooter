@@ -53,6 +53,7 @@ namespace Controller
         {
             HandleFireAnimation();
             BulletDirection();
+            ZeroSpreadBurstMode();
         }
 
         #region Event Subscription
@@ -151,6 +152,14 @@ namespace Controller
             
             return true;
         }
+        
+        private void ZeroSpreadBurstMode()
+        {
+            if (_playerWeaponFireData.CurrentWeaponSettingsSO.BurstActivated())
+            {
+                _playerWeaponFireData.CurrentWeaponSettingsSO.CurrentSpreadAmount = 0f;
+            }
+        }
 
 
         private void FireSingleBullet()
@@ -205,7 +214,7 @@ namespace Controller
             bulletLogic.BulletSetup(_playerWeaponFireData.CurrentWeaponSettingsSO.GunRange, _playerWeaponFireData.PlayerBulletSettingsSO.BulletImpactForce);
 
             rb.mass = ReferenceBulletSpeed * _playerWeaponFireData.PlayerBulletSettingsSO.BulletSpeed;
-            rb.velocity = CalculateBulletSpeed(weaponType);
+            rb.linearVelocity = CalculateBulletSpeed(weaponType);
             LeanPool.Despawn(bullet, 10f); // Bullets despawn after 10 seconds
         }
 

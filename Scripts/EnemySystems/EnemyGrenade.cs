@@ -40,7 +40,7 @@ namespace EnemyLogic
         {
             _canExplode = true;
             _allyLayerMask = allyLayer;
-            _rigidbody.velocity = CalculateThrowVelocity(target, timeToTarget);
+            _rigidbody.linearVelocity = CalculateThrowVelocity(target, timeToTarget);
             _timer = countdown + timeToTarget;
             _impactPower = impactPower;
             _granadeDamage = granadeDamage;

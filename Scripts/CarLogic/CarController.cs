@@ -81,7 +81,7 @@ namespace CarLogic
             if (_carActive == false)
                 return;
             
-            _carSpeed = _rigidbody.velocity.magnitude;
+            _carSpeed = _rigidbody.linearVelocity.magnitude;
             _ui._inGameUI.UpdateCarSpeedTextUI(Mathf.RoundToInt(_carSpeed * 10f) + "KM / H");
             _driftTimer -= Time.deltaTime;
             
@@ -132,7 +132,7 @@ namespace CarLogic
                 wheel._trailRenderer.emitting = false;
             }
             
-            _rigidbody.drag = 1f;
+            _rigidbody.linearDamping = 1f;
             _motorForce = 0;
             _isDrifting = true;
             _frontDriftFactor = 0.9f;
@@ -246,8 +246,8 @@ namespace CarLogic
         
         private void ApplySpeedLimit()
         {
-            if (_rigidbody.velocity.magnitude > _maxSpeed)
-                _rigidbody.velocity = _rigidbody.velocity.normalized * _maxSpeed;
+            if (_rigidbody.linearVelocity.magnitude > _maxSpeed)
+                _rigidbody.linearVelocity = _rigidbody.linearVelocity.normalized * _maxSpeed;
         }
         
         private void ApplyAnimationToWheels()
