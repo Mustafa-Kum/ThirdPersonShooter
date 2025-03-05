@@ -18,7 +18,7 @@ MonoBehaviour:
   _maxWeaponCooldown: 3
   _weaponMuzzleFlash: {fileID: 1556169196827650, guid: 4f2f9845677ab3f49be1179d6bd15b78, type: 3}
   _bulletSpeed: 50
-  _weaponSpread: 2.5
+  _weaponSpread: 3.5
   _minBulletPerShot: 2
   _maxBulletPerShot: 5
-  _bulletDamage: 10
+  _bulletDamage: 7

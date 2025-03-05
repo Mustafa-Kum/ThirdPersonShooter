@@ -110,7 +110,7 @@ namespace EnemyRangeLogic
         {
             if (_firstTimeAttack)
             {
-                _enemyRange._agroRange = _enemyRange._advanceStoppingDistance + 2;
+                //_enemyRange._agroRange = _enemyRange._advanceStoppingDistance + 2;
                 
                 _firstTimeAttack = false;
                 

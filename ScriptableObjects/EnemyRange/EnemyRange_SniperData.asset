@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: EnemyRange_SniperData
   m_EditorClassIdentifier: 
   _enemyRangeWeaponType: 4
-  _fireRate: 10
+  _fireRate: 1
   _minWeaponCooldown: 1
-  _maxWeaponCooldown: 3
+  _maxWeaponCooldown: 5
   _weaponMuzzleFlash: {fileID: 1556169196827650, guid: 4f2f9845677ab3f49be1179d6bd15b78, type: 3}
   _bulletSpeed: 75
-  _weaponSpread: 1
+  _weaponSpread: 2
   _minBulletPerShot: 1
   _maxBulletPerShot: 1
-  _bulletDamage: 25
+  _bulletDamage: 18

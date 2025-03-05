@@ -194,7 +194,6 @@ namespace EnemyRangeLogic
             // Unstoppable perk kontrolü
             if (IsUnstoppeble())
             {
-                _advanceSpeed = 1;
                 _animator.SetFloat("AdvanceAnimIndex", 1);
             }
         }
