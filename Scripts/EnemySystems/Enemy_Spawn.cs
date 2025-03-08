@@ -88,7 +88,7 @@ namespace EnemyLogic
             if (!CanStartNewWave()) return;
 
             // Eğer 5. dal başlıyorsa (0 tabanlı dizide index 4)
-            if (currentWaveIndex == 4)
+            if (currentWaveIndex == 1)
             {
                 EventManager.MapEvents.ColumnSpawn?.Invoke();
             }
@@ -282,7 +282,6 @@ namespace EnemyLogic
         protected virtual IEnumerator SpawnEnemies(Wave wave)
         {
             int spawnedCount = 0;
-
             while (wave.ShouldContinueSpawning(spawnedCount))
             {
                 foreach (var enemyPrefab in wave.enemies)
@@ -290,13 +289,42 @@ namespace EnemyLogic
                     if (!ShouldSpawnMore(wave, spawnedCount))
                         yield break;
 
-                    SpawnSingleEnemy(enemyPrefab);
+                    // Artık enemy spawn işlemi coroutine olarak çağrılıyor
+                    yield return SpawnSingleEnemyCoroutine(enemyPrefab);
                     activeEnemyCount++;
                     spawnedCount++;
+                    Debug.Log(spawnedCount);
                     yield return new WaitForSeconds(wave.spawnInterval);
                 }
             }
-        }
+        } 
+
+        protected virtual IEnumerator SpawnSingleEnemyCoroutine(GameObject enemyPrefab)
+        {
+            Vector3 spawnPosition;
+            // Uygun pozisyon bulunana kadar bekle
+            while (!TryCalculateSafeSpawnPosition(out spawnPosition))
+            {
+                // Her denemeden sonra bir sonraki frame'e geçiyoruz.
+                yield return null;
+            }
+
+            // Uygun pozisyon bulunduğunda enemy spawn ediliyor.
+            GameObject enemy = LeanPool.Spawn(enemyPrefab, spawnPosition, Quaternion.identity);
+            
+            // Spawn efektleri
+            GameObject particleInstance = LeanPool.Spawn(_spawnParticle, enemy.transform.position, Quaternion.identity);
+            ParticleSystem ps = particleInstance.GetComponent<ParticleSystem>();
+            if (ps != null)
+            {
+                float delay = ps.main.duration;
+                LeanPool.Despawn(particleInstance, delay);
+            }
+            else
+            {
+                LeanPool.Despawn(particleInstance, 2f);
+            }
+        } 
         #endregion
     }
 }

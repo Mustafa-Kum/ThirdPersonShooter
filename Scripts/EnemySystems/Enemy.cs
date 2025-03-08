@@ -170,9 +170,7 @@ namespace EnemyLogic
             _enemyHealth.ReduceHealth(damage);
 
             if (_enemyHealth.ShouldDie())
-            {
                 Die();
-            }
         }
 
         /// <summary>
@@ -184,18 +182,6 @@ namespace EnemyLogic
             _enemyHealth._currentHealth += additonalHealth;
             transform.localScale = transform.localScale * 1.15f;
         }
-        
-        /// <summary>
-        /// Mermi çarptığında çalışan, ragdoll üzerinde güç uygulamak için kullandığımız metot.
-        /// </summary>
-        /// <param name="force"></param>
-        /// <param name="hitPoint"></param>
-        /// <param name="rigidbody"></param>
-        public virtual void BulletImpact(Vector3 force, Vector3 hitPoint, Rigidbody rigidbody)
-        {
-            if (_enemyHealth.ShouldDie())
-                StartCoroutine(DeathImpactCoroutine(force, hitPoint, rigidbody));
-        }
 
         /// <summary>
         /// Düşmanın ölümü ile ilgili işlemler.
@@ -206,15 +192,6 @@ namespace EnemyLogic
             DeactivateAnimatorAndNavAgent();
             RagDoll.ActivateRagDollRigidBody(true);
             //HandleMissionHuntTarget();
-        }
-
-        /// <summary>
-        /// Ölüm anında kısa bir gecikme ile fizik kuvvet uygular.
-        /// </summary>
-        private IEnumerator DeathImpactCoroutine(Vector3 force, Vector3 hitPoint, Rigidbody rigidbody)
-        {
-            yield return new WaitForSeconds(0.1f);
-            rigidbody.AddForceAtPosition(force, hitPoint, ForceMode.Impulse);
         }
 
         /// <summary>

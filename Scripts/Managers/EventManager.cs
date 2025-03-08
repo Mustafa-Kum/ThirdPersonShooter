@@ -16,6 +16,7 @@ namespace Manager
             public static UnityAction<float, float, float> PlayerCameraShake;
             public static UnityAction<float, float> PlayerWeaponRecoil;
             public static UnityAction<float, float> PlayerWeaponCameraShake;
+            public static UnityAction<bool, Logic.HitArea> PlayerHitEnemyCrosshairFeedBack;
             public static UnityAction<float> PlayerSlowMotion;
             public static UnityAction<PlayerWeaponSettingsSO> PlayerWeaponPickUp;
             public static UnityAction<WeaponType> PlayerWeaponReload;
@@ -27,7 +28,6 @@ namespace Manager
             public static UnityAction<bool> PlayerRollingStart;
             public static UnityAction<bool> PlayerRollingEnd;
             public static UnityAction<bool> PlayerCanScopeToggle;
-            public static UnityAction<bool, Logic.HitArea> PlayerHitEnemyCrosshairFeedBack;
             public static UnityAction<int> PlayerWeaponSwap;
             public static UnityAction PlayerMovement;
             public static UnityAction PlayerFire;

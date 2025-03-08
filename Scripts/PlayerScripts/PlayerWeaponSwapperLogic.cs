@@ -19,6 +19,7 @@ namespace Logic
         [SerializeField] private PlayerWeaponSwapperData _playerWeaponSwapperData;
         [SerializeField] private PlayerWeaponEquipAndPickUpLogic _playerWeaponEquipAndPickUpLogic;
         [SerializeField] private CinemachineVirtualCamera _thirdPersonCamera;
+        [SerializeField] private PlayerWeaponSettingsSO _currentWeaponSettingsSO;
 
         private readonly Dictionary<WeaponType, int> _weaponTypeToTransformIndex = new Dictionary<WeaponType, int>
         {
@@ -87,6 +88,10 @@ namespace Logic
                 _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO, 
                 _playerWeaponEquipAndPickUpLogic.PlayerWeaponSlotSO[validIndex]
             );
+
+            EventManager.PlayerEvents.PlayerScopedAnimation?.Invoke(false);
+            EventManager.PlayerEvents.PlayerFOVZoomRoutine?.Invoke(75f, 0.2f, _thirdPersonCamera);
+            _currentWeaponSettingsSO.IsWeaponScopped = false;
         }
 
 

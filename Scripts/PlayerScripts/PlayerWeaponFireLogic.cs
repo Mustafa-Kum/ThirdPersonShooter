@@ -211,7 +211,7 @@ namespace Controller
             Rigidbody rb = bullet.GetComponent<Rigidbody>();
             PlayerBulletLogic bulletLogic = bullet.GetComponent<PlayerBulletLogic>();
 
-            bulletLogic.BulletSetup(_playerWeaponFireData.CurrentWeaponSettingsSO.GunRange, _playerWeaponFireData.PlayerBulletSettingsSO.BulletImpactForce);
+            bulletLogic.BulletSetup(_playerWeaponFireData.CurrentWeaponSettingsSO.GunRange);
 
             rb.mass = ReferenceBulletSpeed * _playerWeaponFireData.PlayerBulletSettingsSO.BulletSpeed;
             rb.linearVelocity = CalculateBulletSpeed(weaponType);

@@ -8,7 +8,8 @@ namespace Logic
     public enum HitArea
     {
         Head,
-        Body
+        Body,
+        Death
     }
 
     public class PlayerHitEnemyCrosshairFeedbackLogic : MonoBehaviour

@@ -34,13 +34,12 @@ namespace HitboxLogic
             int adjustedDamage = CalculateDamage(damage);
             _enemy.GetHit(adjustedDamage);
 
-            EventManager.PlayerEvents.PlayerHitEnemyCrosshairFeedBack?.Invoke(true, _hitArea);
+            if (_enemy._enemyHealth._currentHealth > 0)
+                EventManager.PlayerEvents.PlayerHitEnemyCrosshairFeedBack?.Invoke(true, _hitArea);
 
             // Eğer düşman henüz ölmediyse, hit marker sesini oynatıyoruz
             if (_healthController != null && !_healthController.IsDead)
-            {
                 PlayHitSound(_hitArea);
-            }
 
             if (_multiAimConstraint != null)
                 StartCoroutine(SmoothWeightTransition());
@@ -48,7 +47,6 @@ namespace HitboxLogic
 
         private int CalculateDamage(int damage)
         {
-            // _damageMultiplier Hitbox sınıfında tanımlı varsayılmaktadır.
             return Mathf.RoundToInt(damage * _damageMultiplier);
         }
 
@@ -118,7 +116,7 @@ namespace HitboxLogic
 
             var blood = LeanPool.Spawn(selectedBlood, collisionPoint, rotation);
             blood.transform.parent = null;
-            LeanPool.Despawn(blood, 5f);
+            LeanPool.Despawn(blood, 60f);
         }
 
         private void SpawnAttachedBloodOnce()
@@ -127,7 +125,7 @@ namespace HitboxLogic
                 return;
 
             var attachedBlood = LeanPool.Spawn(_bodyAttachedBlood, transform);
-            LeanPool.Despawn(attachedBlood, 10f);
+            LeanPool.Despawn(attachedBlood, 60f);
             _hasSpawnedAttachedBlood = true;
         }
 

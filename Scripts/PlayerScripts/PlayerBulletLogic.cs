@@ -60,7 +60,6 @@ namespace Logic
         {
             SpawnHitEffectForCollision(collision);
             ApplyDamageIfPossible(collision);
-            //ApplyBulletImpactToEnemy(collision);
             DespawnBullet();
         }
 
@@ -73,21 +72,6 @@ namespace Logic
             if (damagable != null)
             {
                 damagable.TakeDamage(_playerBulletLogicData.PlayerWeaponSettingsSO.WeaponDamage);
-            }
-        }
-
-        /// <summary>
-        /// Çarpıştığı objeye göre mermi etkisini uygular (örneğin düşmana kuvvet uygulama).
-        /// </summary>
-        private void ApplyBulletImpactToEnemy(Collision collision)
-        {
-            Enemy enemy = collision.gameObject.GetComponentInParent<Enemy>();
-
-            if (enemy != null)
-            {
-                Vector3 force = _playerBulletLogicData.Rigidbody.linearVelocity.normalized * _impactForce;
-                Rigidbody hitEnemyRigidbody = collision.collider.attachedRigidbody;
-                enemy.BulletImpact(force, collision.contacts[0].point, hitEnemyRigidbody);
             }
         }
 
