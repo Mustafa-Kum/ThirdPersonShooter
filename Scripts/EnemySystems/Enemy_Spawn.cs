@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Manager;
 using ScriptableObjects;
 using Lean.Pool;
+using TMPro;
 
 namespace EnemyLogic
 {
@@ -38,14 +39,16 @@ namespace EnemyLogic
         [SerializeField] private PlayerTransformValueSO playerTransform;
         [SerializeField] private LayerMask environmentLayerMask;
         [SerializeField] private GameObject _spawnParticle;
+        [SerializeField] private TextMeshProUGUI _waveText;
         #endregion
 
         #region Runtime State
-        private int currentWaveIndex = 0;
         private Coroutine activeWaveCoroutine;
-        private bool isWaveActive = false;
+        private Coroutine waveTextAnimationCoroutine;
+        private int currentWaveIndex = 0;
         private int activeEnemyCount = 0;
         private bool waveSpawningCompleted = false;
+        private bool isWaveActive = false;
         #endregion
 
         #region Unity Events
@@ -70,6 +73,13 @@ namespace EnemyLogic
             currentWaveIndex = 0;
             ResetState();
             StopAllCoroutines();
+            
+            // Wave text'i sıfırla ve gizle
+            if (_waveText != null)
+            {
+                _waveText.alpha = 0f;
+                _waveText.transform.localScale = Vector3.zero;
+            }
         }
 
         public virtual void SkipToWave(int waveIndex)
@@ -78,6 +88,14 @@ namespace EnemyLogic
 
             currentWaveIndex = waveIndex;
             StopAllCoroutines();
+            
+            // Wave text animasyonu sıfırla
+            if (_waveText != null)
+            {
+                _waveText.alpha = 0f;
+                _waveText.transform.localScale = Vector3.zero;
+            }
+            
             StartWave();
         }
         #endregion
@@ -86,6 +104,18 @@ namespace EnemyLogic
         protected virtual void StartWave()
         {
             if (!CanStartNewWave()) return;
+
+            // Wave text animasyonu başlat
+            if (_waveText != null)
+            {
+                // Önceki animasyon varsa durdur
+                if (waveTextAnimationCoroutine != null)
+                {
+                    StopCoroutine(waveTextAnimationCoroutine);
+                }
+                
+                waveTextAnimationCoroutine = StartCoroutine(AnimateWaveText($"Wave {currentWaveIndex + 1}"));
+            }
 
             // Eğer 5. dal başlıyorsa (0 tabanlı dizide index 4)
             if (currentWaveIndex == 1)
@@ -106,7 +136,7 @@ namespace EnemyLogic
         {
             var currentWave = waves[currentWaveIndex];
             LogWaveStart(currentWave);
-
+            
             // Opsiyonel: specialSpawn objesini spawnla (null kontrolü ile)
             if (currentWave.weaponSpawn != null)
             {
@@ -163,6 +193,18 @@ namespace EnemyLogic
 
             if (HasMoreWaves())
             {
+                // Wave text animasyonu için önceki animasyonu durdurma işlemi
+                if (waveTextAnimationCoroutine != null)
+                {
+                    StopCoroutine(waveTextAnimationCoroutine);
+                }
+                
+                // Eğer daha sonraki wave'e geçiliyorsa, yeni animasyonu başlat
+                if (_waveText != null)
+                {
+                    waveTextAnimationCoroutine = StartCoroutine(AnimateWaveText($"Wave {currentWaveIndex + 1}"));
+                }
+                
                 StartNextWave();
             }
             else
@@ -293,7 +335,6 @@ namespace EnemyLogic
                     yield return SpawnSingleEnemyCoroutine(enemyPrefab);
                     activeEnemyCount++;
                     spawnedCount++;
-                    Debug.Log(spawnedCount);
                     yield return new WaitForSeconds(wave.spawnInterval);
                 }
             }
@@ -325,6 +366,52 @@ namespace EnemyLogic
                 LeanPool.Despawn(particleInstance, 2f);
             }
         } 
+        #endregion
+
+        #region UI Animation
+        protected virtual IEnumerator AnimateWaveText(string waveText)
+        {
+            // Text içeriğini ayarla
+            _waveText.text = waveText;
+            
+            // Başlangıçta tamamen saydam ve küçük
+            _waveText.alpha = 0f;
+            _waveText.transform.localScale = Vector3.zero;
+            
+            // Animasyon süreleri
+            float fadeInDuration = 0.5f;
+            float displayDuration = 3f;
+            float fadeOutDuration = 0.5f;
+            
+            // Fade in ve scale up
+            float elapsedTime = 0f;
+            while (elapsedTime < fadeInDuration)
+            {
+                float normalizedTime = elapsedTime / fadeInDuration;
+                _waveText.alpha = Mathf.Lerp(0f, 1f, normalizedTime);
+                _waveText.transform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one, Mathf.SmoothStep(0f, 1f, normalizedTime));
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+            _waveText.alpha = 1f;
+            _waveText.transform.localScale = Vector3.one;
+            
+            // Text'i belirli süre göster
+            yield return new WaitForSeconds(displayDuration);
+            
+            // Fade out ve scale down
+            elapsedTime = 0f;
+            while (elapsedTime < fadeOutDuration)
+            {
+                float normalizedTime = elapsedTime / fadeOutDuration;
+                _waveText.alpha = Mathf.Lerp(1f, 0f, normalizedTime);
+                _waveText.transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, Mathf.SmoothStep(0f, 1f, normalizedTime));
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+            _waveText.alpha = 0f;
+            _waveText.transform.localScale = Vector3.zero;
+        }
         #endregion
     }
 }

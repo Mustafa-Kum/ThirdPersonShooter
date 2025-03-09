@@ -19,10 +19,11 @@ namespace Interactable
         /// </summary>
         private void InitializeMeshRendererAndMaterials()
         {
-            if (_meshRenderer == null)
+            if (_meshRenderer != null)
                 _meshRenderer = GetComponentInChildren<MeshRenderer>();
 
-            _defaultMaterial = _meshRenderer.material;
+            if (_defaultMaterial != null)
+                _defaultMaterial = _meshRenderer.material;
         }
 
         /// <summary>
@@ -39,16 +40,7 @@ namespace Interactable
         /// </summary>
         internal virtual void Interaction()
         {
-            LogInteraction();
             ResetToDefaultMaterial();
-        }
-
-        /// <summary>
-        /// Etkileşim bilgisini loglar (SRP gereği Interaction içinde doğrudan log yerine ayrı metot).
-        /// </summary>
-        private void LogInteraction()
-        {
-            Debug.Log($"Interacted with {gameObject.name}");
         }
 
         /// <summary>

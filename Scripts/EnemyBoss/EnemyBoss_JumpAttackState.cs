@@ -15,7 +15,6 @@ namespace EnemyBossLogic
         private float _jumpAttackMovementSpeed;
         private float _elapsedTime;
         private float _jumpHeight;
-        private bool _jumpSoundPlayed = false;
         
         public EnemyBoss_JumpAttackState(Enemy enemyBase, EnemyStateMachine stateMachine, string animationBoolName) : base(enemyBase, stateMachine, animationBoolName)
         {
@@ -29,7 +28,6 @@ namespace EnemyBossLogic
             _elapsedTime = 0f;
             _startPosition = _enemyBoss.transform.position;
             _jumpStartPosition = _startPosition; // Zıplama başlangıç pozisyonunu cache et
-            _jumpSoundPlayed = false; 
             _lastPlayerPosition = _enemyBoss._playerTransformValueSO.PlayerTransform;
             
             float distanceToPlayer = Vector3.Distance(_lastPlayerPosition, _startPosition);

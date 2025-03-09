@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using Manager;
 using UnityEngine.UI;
 
@@ -21,15 +22,28 @@ namespace Logic
         private RectTransform _crosshairRectTransform;
         private Image _crosshairImage; 
         private Coroutine _animationCoroutine;
+        
+        // Tüm crosshair instance'larını takip etmek için statik liste
+        private static List<PlayerHitEnemyCrosshairFeedbackLogic> _activeCrosshairs = new List<PlayerHitEnemyCrosshairFeedbackLogic>();
+        // Death animasyonu oynatıldığında diğerlerini durdurmak için statik flag
+        private static bool _isDeathPlaying = false;
 
         private void OnEnable()
         {
             EventManager.PlayerEvents.PlayerHitEnemyCrosshairFeedBack += OnPlayerHitEnemyCrosshairFeedBack;
+            _activeCrosshairs.Add(this);
         }
 
         private void OnDisable()
         {
             EventManager.PlayerEvents.PlayerHitEnemyCrosshairFeedBack -= OnPlayerHitEnemyCrosshairFeedBack;
+            _activeCrosshairs.Remove(this);
+            
+            // Eğer bu Death crosshair'i ise ve devreden çıkıyorsa, flag'i resetle
+            if (_targetHitArea == HitArea.Death)
+            {
+                _isDeathPlaying = false;
+            }
         }
 
         private void Start()
@@ -45,6 +59,22 @@ namespace Logic
 
         private void OnPlayerHitEnemyCrosshairFeedBack(bool isHit, HitArea hitArea)
         {
+            // Eğer Death oynatılıyorsa ve bu Death değilse hiçbir şey yapma
+            if (_isDeathPlaying && _targetHitArea != HitArea.Death)
+                return;
+                
+            // Death tetiklendiğinde diğer tüm crosshair'leri durdur
+            if (isHit && hitArea == HitArea.Death && _targetHitArea != HitArea.Death)
+                return;
+                
+            // Death crosshair'inin tetiklenmesi durumu
+            if (isHit && hitArea == HitArea.Death && _targetHitArea == HitArea.Death)
+            {
+                // Diğer tüm crosshair'leri durdur
+                StopAllOtherCrosshairs();
+                _isDeathPlaying = true;
+            }
+                
             // Sadece belirtilen hitArea'ya sahipse tepki ver
             if (isHit && hitArea == _targetHitArea)
             {
@@ -64,6 +94,33 @@ namespace Logic
                 // Alpha'yı direkt 0 yap ve pozisyonu resetle
                 SetCrosshairAlpha(0f);
                 _crosshairRectTransform.anchoredPosition = _crosshairStarterPosition;
+                
+                // Eğer bu Death crosshair'i ise ve duruyorsa, flag'i resetle
+                if (_targetHitArea == HitArea.Death)
+                {
+                    _isDeathPlaying = false;
+                }
+            }
+        }
+
+        // Diğer tüm aktif crosshair'lerin animasyonlarını durdurur
+        private void StopAllOtherCrosshairs()
+        {
+            foreach (var crosshair in _activeCrosshairs)
+            {
+                if (crosshair != this && crosshair._targetHitArea != HitArea.Death)
+                {
+                    // Diğer crosshair'in animasyonunu durdur
+                    if (crosshair._animationCoroutine != null)
+                    {
+                        crosshair.StopCoroutine(crosshair._animationCoroutine);
+                        crosshair._animationCoroutine = null;
+                    }
+                    
+                    // Alpha'yı 0 yap ve pozisyonu resetle
+                    crosshair.SetCrosshairAlpha(0f);
+                    crosshair._crosshairRectTransform.anchoredPosition = crosshair._crosshairStarterPosition;
+                }
             }
         }
 
@@ -91,6 +148,12 @@ namespace Logic
             SetCrosshairAlpha(0f);
             _crosshairRectTransform.anchoredPosition = startPos;
             _animationCoroutine = null;
+            
+            // Eğer bu Death crosshair'i ise ve animasyon bittiyse, flag'i resetle
+            if (_targetHitArea == HitArea.Death)
+            {
+                _isDeathPlaying = false;
+            }
         }
 
         // Alpha değişimini merkezileştiren yardımcı fonksiyon

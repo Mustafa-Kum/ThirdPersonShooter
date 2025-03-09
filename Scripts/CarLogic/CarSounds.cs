@@ -16,7 +16,6 @@ namespace CarLogic
         [SerializeField] private AudioSource _engineOff;
         
         private CarController _carController;
-        private float _minSpeed = 0;
         private float _maxSpeed = 10;
         private bool _allowCarSounds;
 

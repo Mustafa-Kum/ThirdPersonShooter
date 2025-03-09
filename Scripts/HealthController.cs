@@ -32,7 +32,7 @@ namespace HpController
                 _currentHealth = _maxHealth;
         }
 
-        public bool ShouldDie()
+        public virtual bool ShouldDie()
         {
             if (_isDead)
                 return false;

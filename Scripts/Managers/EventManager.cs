@@ -36,6 +36,7 @@ namespace Manager
             public static UnityAction PlayerInteractable;
             public static UnityAction PlayerWeaponDrop;
             public static UnityAction PlayerAmmoPickedUp;
+            public static UnityAction PlayerHealthPickedUp;
             public static UnityAction PlayerScaleToDefault;
             public static UnityAction PlayerColliderFalse;
             public static UnityAction PlayerColliderTrue;

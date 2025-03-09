@@ -3,6 +3,7 @@ using Lean.Pool;
 using Manager;
 using ScriptableObjects;
 using UnityEngine;
+using System.Collections;
 
 namespace PlayerScripts
 {
@@ -14,11 +15,13 @@ namespace PlayerScripts
         [SerializeField] private GameObject _rollParticle;
         [SerializeField] private float _rollSpeed;
         [SerializeField] private float _rollCooldown;
+        [SerializeField] private float _preventRunAfterRollTime = 0.5f; // Time to prevent running after roll
 
         private Animator _animator;
         private bool _isRolling;
         private bool _canRoll = true;
         private float _currentCooldown;
+        private bool _preventRunning = false;
 
         private void Awake()
         {
@@ -47,6 +50,12 @@ namespace PlayerScripts
             }
 
             HandleCooldown();
+            
+            // If we're preventing running, make sure IsRunning stays false
+            if (_preventRunning)
+            {
+                _playerMovementValueSO.IsRunning = false;
+            }
         }
 
         private void HandleCooldown()
@@ -92,6 +101,16 @@ namespace PlayerScripts
             _playerMovementValueSO.IsRolling = false;
             EventManager.PlayerEvents.PlayerCanTakeDamage?.Invoke(true);
             EventManager.PlayerEvents.PlayerWeaponCanFire?.Invoke(true);
+            
+            // Prevent running for a short time after roll ends
+            _preventRunning = true;
+            StartCoroutine(ResetPreventRunning());
+        }
+
+        private IEnumerator ResetPreventRunning()
+        {
+            yield return new WaitForSeconds(_preventRunAfterRollTime);
+            _preventRunning = false;
         }
 
         private void StartCooldown()

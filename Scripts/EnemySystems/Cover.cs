@@ -19,7 +19,7 @@ namespace CoverLogic
 
         private void Start()
         {
-            GenerateCoverPoints();
+            //GenerateCoverPoints();
         }
         
         public List<CoverPoint> GetCoverPoints(Transform enemyTransform)

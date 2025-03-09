@@ -3,26 +3,30 @@ using Manager;
 using RagDollLogic;
 using UILogic;
 using UnityEngine;
+using ScriptableObjects;
 
 namespace PlayerScripts
 {
     public class PlayerHealthController : HealthController
     {
+        [SerializeField] private PlayerHealthDataSO _playerHealthDataSO;
+        
         private RagDoll _ragDoll;
         private Animator _animator;
-        
+
         public bool _isDead { get; private set; }
         
         protected override void Awake()
         {
-            base.Awake();
+            _playerHealthDataSO._currentHealthAmount = _maxHealth;
+
             InitializeRagdoll();
             InitializeAnimator();
         }
 
         public override void ReduceHealth(int damage)
         {
-            base.ReduceHealth(damage);
+            _playerHealthDataSO._currentHealthAmount -= damage;
             
             CheckDeathCondition();
             UpdateHealthUI();
@@ -60,7 +64,7 @@ namespace PlayerScripts
         /// </summary>
         private void UpdateHealthUI()
         {
-            UI.instance._inGameUI.UpdateHealthUI(_currentHealth, _maxHealth);
+            UI.instance._inGameUI.UpdateHealthUI(_playerHealthDataSO._currentHealthAmount, _maxHealth);
         }
 
         /// <summary>
@@ -99,6 +103,22 @@ namespace PlayerScripts
         private void TriggerGameOverEvent()
         {
             EventManager.GameEvents.GameOver?.Invoke();
+        }
+
+        public override bool ShouldDie()
+        {
+            if (_isDead)
+                return false;
+
+            if (_playerHealthDataSO._currentHealthAmount <= 0)
+            {
+                _isDead = true;
+                EventManager.EnemySpawnEvents.EnemyDied?.Invoke(gameObject);
+                EventManager.AudioEvents.AudioKillSound?.Invoke();
+                return true;
+            }
+
+            return false;
         }
     }
 }

@@ -1,10 +1,10 @@
-﻿using Interactable;
+using Interactable;
 using Manager;
 using UnityEngine;
 
 namespace Item
 {
-    public class Item_AmmoBox : InteractableObject
+    public class Item_HealthBox : InteractableObject
     {
         internal override void Interaction()
         {

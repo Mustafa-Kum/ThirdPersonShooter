@@ -188,7 +188,6 @@ namespace EnemyLogic
         /// </summary>
         public virtual void Die()
         {
-            _enemyDropController.DropItem();
             DeactivateAnimatorAndNavAgent();
             RagDoll.ActivateRagDollRigidBody(true);
             //HandleMissionHuntTarget();

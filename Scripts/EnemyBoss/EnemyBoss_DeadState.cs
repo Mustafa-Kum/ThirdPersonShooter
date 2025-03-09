@@ -2,13 +2,17 @@
 using EnemyStateLogic;
 using EnemyStateMachineLogic;
 using UnityEngine;
+using Manager;
 
 namespace EnemyBossLogic
 {
     public class EnemyBoss_DeadState : EnemyState
     {
-        private EnemyBoss _enemyBoss;
-        private bool _interactionDisable;
+        private readonly EnemyBoss _enemyBoss;
+        private bool _isInteractionDisabled;
+        private const float InteractionDisableTime = 0f;
+        private const float DestroyEnemyTime = -1f;
+        private const float DeadStateDuration = 10f;
         
         public EnemyBoss_DeadState(Enemy enemyBase, EnemyStateMachine stateMachine, string animationBoolName) : base(enemyBase, stateMachine, animationBoolName)
         {
@@ -21,30 +25,55 @@ namespace EnemyBossLogic
             
             _enemyBoss._abilityState.DisableFlameThrower();
             
-            _interactionDisable = false;
-
-            _stateTimer = 2f;
+            SetLayerRecursively(_enemyBoss.gameObject, LayerMask.NameToLayer("Death"));
+            EventManager.PlayerEvents.PlayerHitEnemyCrosshairFeedBack?.Invoke(true, Logic.HitArea.Death);
+            _isInteractionDisabled = false;
+            _stateTimer = DeadStateDuration;
         }
 
         public override void Update()
         {
             base.Update();
             
-            DisableInteraction();
+            HandleInteraction();
+            HandleDestruction();
         }
-        
-        public override void Exit()
+
+        private void HandleInteraction()
         {
-            base.Exit();
+            if (!_isInteractionDisabled && _stateTimer <= InteractionDisableTime)
+            {
+                DisableInteraction();
+            }
         }
-        
+
+        private void HandleDestruction()
+        {
+            if (_stateTimer <= DestroyEnemyTime && _enemyBoss.gameObject.activeSelf)
+            {
+                DestroyEnemy();
+            }
+        }
+
         private void DisableInteraction()
         {
-            if (_stateTimer <= 0 && _interactionDisable == false)
+            _isInteractionDisabled = true;
+            //_enemyMelee.RagDoll.ActivateRagDollRigidBody(false); // İhtiyaca göre yorum kaldırılabilir.
+            _enemyBoss.RagDoll.ActiveRagdollCollider(false);
+        }
+
+        private void DestroyEnemy()
+        {
+            _enemyBoss.gameObject.SetActive(false);
+        }
+
+        private void SetLayerRecursively(GameObject obj, int newLayer)
+        {
+            obj.layer = newLayer;
+            
+            foreach (Transform child in obj.transform)
             {
-                _interactionDisable = true;
-                //_enemyRagDoll.ActivateRagDollRigidBody(false); // ---> After Dead dropping the enemy to the ground
-                _enemyBoss.RagDoll.ActiveRagdollCollider(false);
+                SetLayerRecursively(child.gameObject, newLayer);
             }
         }
     }

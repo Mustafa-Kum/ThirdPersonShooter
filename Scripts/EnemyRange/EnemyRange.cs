@@ -200,6 +200,13 @@ namespace EnemyRangeLogic
 
         public override void Die()
         {
+            // Clear cover point occupation status when enemy dies
+            if (_currentCover != null)
+            {
+                _currentCover.SetOccupied(false);
+                _currentCover = null;
+            }
+            
             base.Die();
             
             if (_stateMachine._currentState != _deadState)

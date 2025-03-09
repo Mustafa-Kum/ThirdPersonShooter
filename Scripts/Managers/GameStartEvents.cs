@@ -24,6 +24,7 @@ namespace Manager
             ShootTimeReset();
             //LevelGeneration();
             EventManager.EnemySpawnEvents.EnemySpawn?.Invoke();
+            EventManager.PlayerEvents.PlayerWeaponSwap?.Invoke(0);
         }
         
         private void ShootTimeReset()
