@@ -11,16 +11,16 @@ namespace Item
             base.Interaction();
             
             // Interaksiyon sürecini parçalıyoruz.
-            InvokeAmmoPickedEvent();
+            InvokeHealthPickedEvent();
             DeactivateObject();
         }
 
         /// <summary>
         /// Ammo alındı event'ini çağırır.
         /// </summary>
-        private void InvokeAmmoPickedEvent()
+        private void InvokeHealthPickedEvent()
         {
-            EventManager.PlayerEvents.PlayerAmmoPickedUp?.Invoke();
+            EventManager.PlayerEvents.PlayerHealthPickedUp?.Invoke();
         }
 
         /// <summary>

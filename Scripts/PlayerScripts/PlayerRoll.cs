@@ -4,6 +4,7 @@ using Manager;
 using ScriptableObjects;
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 namespace PlayerScripts
 {
@@ -16,12 +17,16 @@ namespace PlayerScripts
         [SerializeField] private float _rollSpeed;
         [SerializeField] private float _rollCooldown;
         [SerializeField] private float _preventRunAfterRollTime = 0.5f; // Time to prevent running after roll
+        [SerializeField] private Image _rollCooldownImage; // Image for roll cooldown UI
 
         private Animator _animator;
         private bool _isRolling;
         private bool _canRoll = true;
         private float _currentCooldown;
         private bool _preventRunning = false;
+        
+        // Public property for other scripts to check cooldown status
+        public bool IsOnCooldown => !_canRoll;
 
         private void Awake()
         {
@@ -64,9 +69,22 @@ namespace PlayerScripts
             {
                 _currentCooldown -= Time.deltaTime;
                 
+                // Update cooldown UI
+                if (_rollCooldownImage != null)
+                {
+                    float fillAmount = Mathf.Clamp01(_currentCooldown / _rollCooldown);
+                    _rollCooldownImage.fillAmount = fillAmount;
+                }
+                
                 if (_currentCooldown <= 0)
                 {
                     _canRoll = true;
+                    
+                    // Reset UI when cooldown finishes
+                    if (_rollCooldownImage != null)
+                    {
+                        _rollCooldownImage.fillAmount = 0;
+                    }
                 }
             }
         }
@@ -117,6 +135,12 @@ namespace PlayerScripts
         {
             _canRoll = false;
             _currentCooldown = _rollCooldown;
+            
+            // Initialize cooldown UI
+            if (_rollCooldownImage != null)
+            {
+                _rollCooldownImage.fillAmount = 1f;
+            }
         }
 
         private void RollParticle()

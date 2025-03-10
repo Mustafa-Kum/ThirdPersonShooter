@@ -15,7 +15,7 @@ MonoBehaviour:
   _weaponType: 3
   _shootType: 0
   _burstModeAvailable: 1
-  _weaponAmmo: 5
+  _weaponAmmo: 20
   _maxAmmo: 20
   _totalReserveAmmo: 1000
   _bulletPerFire: 5

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Manager
 {
@@ -11,8 +12,17 @@ namespace Manager
         [SerializeField] private float _resumeTimeRate = 3;
         [SerializeField] private float _pauseTimeRate = 7;
         
+        [Header("Cooldown UI")]
+        [SerializeField] private Image _cooldownImage;
+        
+        // Public property to check if ability is on cooldown
+        public bool IsOnCooldown => _isCooldownActive;
+        
         private float _targetTimeScale = 1f;
         private float _timeAdjustRate;
+        private float _currentCooldownTime;
+        private float _maxCooldownTime;
+        private bool _isCooldownActive;
         
         private void Awake()
         { 
@@ -41,8 +51,27 @@ namespace Manager
             {
                 Time.timeScale = _targetTimeScale;
             }
+            
+            UpdateCooldownUI();
         }
 
+        private void UpdateCooldownUI()
+        {
+            if (_isCooldownActive && _cooldownImage != null)
+            {
+                _currentCooldownTime -= Time.unscaledDeltaTime;
+                
+                float fillAmount = Mathf.Clamp01(_currentCooldownTime / _maxCooldownTime);
+                _cooldownImage.fillAmount = fillAmount;
+                
+                if (_currentCooldownTime <= 0)
+                {
+                    _isCooldownActive = false;
+                    _cooldownImage.fillAmount = 0;
+                }
+            }
+        }
+        
         public void PauseTime()
         {
             _timeAdjustRate = _pauseTimeRate;
@@ -57,7 +86,19 @@ namespace Manager
         
         public void SlowMotion(float seconds)
         {
+            // If already on cooldown, don't allow activation
+            if (_isCooldownActive)
+                return;
+                
             StartCoroutine(SlowTimeCoroutine(seconds));
+            
+            if (_cooldownImage != null)
+            {
+                _maxCooldownTime = seconds;
+                _currentCooldownTime = seconds;
+                _isCooldownActive = true;
+                _cooldownImage.fillAmount = 1f;
+            }
         }
 
         private IEnumerator SlowTimeCoroutine(float seconds)

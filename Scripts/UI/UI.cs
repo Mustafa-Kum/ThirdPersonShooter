@@ -77,6 +77,7 @@ namespace UILogic
                 ControlsManager.instance.SwitchToCharacterControls();
                 TimeManager.instance.ResumeTime();
                 Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
             }
             else
             {
@@ -84,6 +85,7 @@ namespace UILogic
                 ControlsManager.instance.SwitchToUIControls();
                 TimeManager.instance.PauseTime();
                 Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
             }
         }
         
