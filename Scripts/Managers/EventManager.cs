@@ -3,6 +3,7 @@ using Cinemachine;
 using ScriptableObjects;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace Manager
 {

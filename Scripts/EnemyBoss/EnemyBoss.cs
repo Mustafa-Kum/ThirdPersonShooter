@@ -178,7 +178,6 @@ namespace EnemyBossLogic
                     if (uniqueEntities.Add(rootEntity) == false)
                         continue;
                     
-                    Debug.Log(hit.transform.root.name);
                     damagable.TakeDamage(damage);
                 }
                 
@@ -225,8 +224,6 @@ namespace EnemyBossLogic
                 GameObject newFx = LeanPool.Spawn(_hammerFxPrefab, damagePoint.position, Quaternion.identity);
                 LeanPool.Despawn(newFx, 2f);
                 MassDamage(damagePoint.position, _hammerCheckRadius, _hammer360Damage);
-                
-                Debug.Log("1");
         
                 yield return delay;
             }

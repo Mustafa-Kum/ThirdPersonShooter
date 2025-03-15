@@ -167,7 +167,7 @@ namespace Logic
             if (DoesPlayerHaveWeapon(newWeapon))
             {
                 AddAmmoToExistingWeapon(newWeapon);
-                EquipExistingWeapon(newWeapon);
+                //EquipExistingWeapon(newWeapon);
                 return;
             }
 

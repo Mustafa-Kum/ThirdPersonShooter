@@ -60,7 +60,7 @@ namespace Logic
             UnsubscribeFromEvents();
         }
 
-        private void Update()
+        private void LateUpdate()
         {
             HandleMouseInput();
             HandleRecoilRecovery();

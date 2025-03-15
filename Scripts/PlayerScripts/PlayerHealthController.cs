@@ -72,13 +72,17 @@ namespace PlayerScripts
         /// </summary>
         private void Die()
         {
-            if (_isDead)
+            if (!_isDead)
                 return;
 
-            _isDead = true;
             ActivateRagdoll();
             DisableAnimator();
             TriggerGameOverEvent();
+            EventManager.EnemySpawnEvents.EnemyDied?.Invoke(gameObject);
+            EventManager.AudioEvents.AudioKillSound?.Invoke();
+
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
 
         /// <summary>
@@ -113,8 +117,6 @@ namespace PlayerScripts
             if (_playerHealthDataSO._currentHealthAmount <= 0)
             {
                 _isDead = true;
-                EventManager.EnemySpawnEvents.EnemyDied?.Invoke(gameObject);
-                EventManager.AudioEvents.AudioKillSound?.Invoke();
                 return true;
             }
 

@@ -6,6 +6,7 @@ public class ColumnEvent : MonoBehaviour
 {
     [SerializeField] private float targetYPosition = -3.5f;
     [SerializeField] private float moveSpeed = 2.0f;
+    [SerializeField] private ParticleSystem _particleSystem;
 
     private Coroutine moveCoroutine;
 
@@ -37,11 +38,16 @@ public class ColumnEvent : MonoBehaviour
     /// </summary>
     protected virtual IEnumerator MoveToTarget()
     {
+        _particleSystem.Play();
+        // 2 saniye bekle
+        yield return new WaitForSeconds(1.5f);
+        
         Vector3 targetPosition = new Vector3(transform.position.x, targetYPosition, transform.position.z);
         
         while (!Mathf.Approximately(transform.position.y, targetYPosition))
         {
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+        
             yield return null;
         }
         
